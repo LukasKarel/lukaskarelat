@@ -2,8 +2,6 @@
   import "../app.css";
 
   let { children } = $props();
-
-  import { SiGithub, SiInstagram } from "@icons-pack/svelte-simple-icons";
 </script>
 
 <div class="drawer">
