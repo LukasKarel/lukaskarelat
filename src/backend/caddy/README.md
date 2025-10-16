@@ -5,7 +5,7 @@ This folder contains configuration for the [Caddy Proxy](https://caddyserver.com
 ## Docker
 
 Run caddy from this directory with docker compose
-``docker compose up``
+``docker compose up --build``
 
 If you want to reload the config connect into container
 ``docker exec -it [CONTAINER_ID] /bin/sh``
