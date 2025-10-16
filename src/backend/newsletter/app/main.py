@@ -137,34 +137,3 @@ async def subscribe(
     sub = listmonk.create_subscriber(email=dto.email, name=name, list_ids=list_ids, pre_confirm=False, attribs={})
 
     return SubscribeResponseDto(email=dto.email)
-
-
-@api.post("/api/newsletter/optin")
-async def subscribe(
-    dto: SubscribeRequestDto
-) -> SubscribeResponseDto:
-    # Honeypot check
-    if dto.honeypot.strip() != "":
-        # bot was detected
-        raise HTTPException(status_code=400)
-
-    # Verify HMAC token
-    if not verify_token(dto.formToken):
-        # bot might be detected
-        raise HTTPException(status_code=400)
-    
-    sub = listmonk.subscriber_by_email(email=dto.email)
-    if sub is not None:
-        # if user was already added to list, everythings fine.
-        # do NOT check if user is blocklisted and change response according to user status
-        # because than everybody could check random addresses and check if they are registered (data leak)
-        return SubscribeResponseDto(email=dto.email)
-
-    lists = listmonk.lists()
-    # filter for public lists
-    lists = [item for item in lists if item.type == "public"]
-    list_ids = [list.id for list in lists]
-    name = dto.email.split("@")[0]
-    sub = listmonk.create_subscriber(email=dto.email, name=name, list_ids=list_ids, pre_confirm=False, attribs={})
-
-    return SubscribeResponseDto(email=dto.email)
