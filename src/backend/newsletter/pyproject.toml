@@ -1,0 +1,13 @@
+[project]
+name = "newsletter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.119.0",
+    "listmonk>=0.3.7",
+    "pydantic-settings>=2.11.0",
+    "pydantic[email]>=2.12.2",
+    "uvicorn[standard]>=0.37.0",
+]

@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FastAPI (Uvicorn)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:api",
+                "--reload",
+                "--host",
+                "0.0.0.0"
+            ],
+            "jinja": true,
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "UV_USE_NATIVE_VENV": "1",
+                "APP_CORS_ALLOWED_ORIGINS": "[\"http://localhost:5173\"]",
+                "APP_LISTMONK_BASEURL": "http://localhost:9000/"
+            }
+        }
+    ]
+}
