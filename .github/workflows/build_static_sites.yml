@@ -20,23 +20,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
       
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: pnpm
-      
-      - name: Install dependencies
-        run: pnpm i
       
       - name: Build site
-        run: pnpm run build
+        run: npm run build
           
       - name: Upload artifact
         uses: actions/upload-artifact@v4
