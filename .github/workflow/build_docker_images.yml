@@ -1,0 +1,18 @@
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build-and-push-service-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: 
+          - { name: newsletter, image_name: "lukaskarelat-newsletter", image_description: ""}
+    steps:
+      uses: ./.github/workflows/services/api.yml
+      with:
+        service: ${{matrix.service.name}}
+        image_name: ${{matrix.service.image_name}}
+        image_description: ${{matrix.service.image_description}}
