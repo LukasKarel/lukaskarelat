@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Logo from "$lib/components/logo.svelte";
   import "../app.css";
 
   let { children } = $props();
@@ -7,10 +8,10 @@
 <div class="drawer">
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
-    <div class="navbar bg-base-300 w-full fixed top-0">
+    <div class="navbar bg-base-300 w-full sticky top-0">
       <div class="flex-none"></div>
       <div class="mx-2 flex-1 px-2 font-extrabold">
-        <a href="/">LK</a>
+        <a href="/"><div class="w-10 h-10"><Logo /></div></a>
       </div>
       <div class="flex-none block">
         <ul class="menu menu-horizontal font-bold">
@@ -37,6 +38,8 @@
         </ul>
       </div>
     </div>
-    {@render children()}
+    <div class="flex flex-col">
+      {@render children()}
+    </div>
   </div>
 </div>
