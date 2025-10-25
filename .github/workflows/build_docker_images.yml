@@ -9,7 +9,7 @@ jobs:
       matrix:
         service: 
           - { name: newsletter, image_name: "lukaskarelat-newsletter", image_description: ""}
-    uses: ./.github/workflows/reusable/build.yml
+    uses: ./.github/workflows/reusable-docker-build.yml
     with:
       service: ${{matrix.service.name}}
       image_name: ${{matrix.service.image_name}}
