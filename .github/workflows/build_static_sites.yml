@@ -40,8 +40,8 @@ jobs:
           PUBLIC_API_URL: ${{ vars.HOST_DOMAIN }}
         
           
-      - name: Upload artifact
+      - name: Upload static site
         uses: actions/upload-artifact@v4
         with:
           name: lukaskarelat-static
-          path: 'build/'
+          path: './build/**'
