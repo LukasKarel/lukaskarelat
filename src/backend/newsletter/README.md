@@ -1,6 +1,6 @@
 # Newsletter API
 
-## Required environemnt variables
+## Required environment variables
 
 ```bash
 APP_LISTMONK_PASSWORD=
