@@ -12,7 +12,7 @@ jobs:
           - { name: newsletter, image_name: "lukaskarelat-newsletter", image_description: ""}
     steps:
       - uses: actions/checkout@v5
-      - uses: ./.github/workflows/reusable/build.yml
+      - uses: .github/workflows/reusable/build.yml
         with:
           service: ${{matrix.service.name}}
           image_name: ${{matrix.service.image_name}}
