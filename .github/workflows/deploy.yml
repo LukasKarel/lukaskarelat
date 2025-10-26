@@ -17,7 +17,6 @@ concurrency:
 
 jobs:
   build-frontend:
-    runs-on: ubuntu-latest
     environment:
       name: ${{inputs.environment}}
       url: ${{ vars.HOST_DOMAIN }}
