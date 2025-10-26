@@ -12,9 +12,9 @@ on:
         required: true
         type: string
     outputs:
-      website-downloadurl:
-        description: "The url to download the static build"
-        value: ${{ jobs.built-site.outputs.website-downloadurl }}
+      website-artifict-id:
+        description: "The artifict id to download the static build"
+        value: ${{ jobs.built-site.outputs.website-artifict-id }}
 
 jobs:
   build-site:
@@ -23,7 +23,7 @@ jobs:
       name: ${{ inputs.environment }}
       url: ${{ inputs.hostname }}
     outputs:
-      website-downloadurl: ${{ steps.upload.outputs.artifact-url }}
+      website-artifict-id: ${{ steps.upload.outputs.artifact-id }}
     permissions:
       contents: read
       id-token: write
