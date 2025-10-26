@@ -104,7 +104,7 @@
           <input
             type="text"
             class="hidden"
-            name="address"
+            name="name"
             bind:value={address}
           />
           <button

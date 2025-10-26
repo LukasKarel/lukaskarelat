@@ -15,23 +15,19 @@
       </div>
       <div class="flex-none block">
         <ul class="menu menu-horizontal font-bold">
-          <!-- Navbar menu content here -->
           <li>
             <a href="https://github.com/LukasKarel" target="_blank">
-              <!-- <SiGithub title={""} /> -->
               GITHUB
             </a>
           </li>
           <li>
             <a href="https://www.instagram.com/karel_lu/" target="_blank">
-              <!-- <SiInstagram title={""} /> -->
               INSTAGRAM
             </a>
           </li>
 
           <li>
             <a href="https://www.reddit.com/user/LukasjEEEH/" target="_blank">
-              <!-- <SiInstagram title={""} /> -->
               REDDIT
             </a>
           </li>
