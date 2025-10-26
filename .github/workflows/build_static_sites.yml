@@ -8,6 +8,9 @@ on:
       hostname:
         required: true
         type: string
+      environment:
+        required: true
+        type: string
     outputs:
       website-downloadurl:
         description: "The url to download the static build"
@@ -16,6 +19,9 @@ on:
 jobs:
   build-site:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ inputs.hostname }}
     outputs:
       website-downloadurl: ${{ steps.upload.outputs.artifact-url }}
     permissions:
