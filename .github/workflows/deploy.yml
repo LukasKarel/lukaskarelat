@@ -25,31 +25,50 @@ jobs:
       hostname: ${{ vars.HOST_DOMAIN }}
       environment: ${{inputs.environment}}
 
-  deploy-static-site:
+  deploy-site:
     needs: build-frontend
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
       url: ${{ vars.HOST_DOMAIN }}
     steps:
+    - name: Checkout
+      uses: actions/checkout@v5
     - name: Download static site
       uses: actions/download-artifact@v4
       with:
         artifact-ids: ${{ needs.build-frontend.outputs.website-artifict-id }}
-        path: ./site
+        path: ./deploy/lukaskarelat
         merge-multiple: true
 
+    - name: Setup Caddyfile
+      uses: cuchi/jinja2-action@8bd801365a8d36a0b20f45ee969161685de7785a
+      with:
+        template: ./src/backend/caddy/Caddyfile.j2
+        output_file: ./deploy/caddy/lukaskarelat.caddy
+        strict: true
+        variables: |
+          HOST_DOMAIN=${{vars.HOST_DOMAIN}}
+          NEWSLETTER_API_PROXY_HOST=${{vars.NEWSLETTER_API_PROXY_HOST}}
+          LISTMONK_HOST_DOMAIN=${{vars.LISTMONK_HOST_DOMAIN}}
+          LISTMONK_PROXY_HOST=${{vars.LISTMONK_PROXY_HOST}}
 
-    - name: Verify content
-      run: ls -lah ./site
 
-
-    - name: Copy files via SSH
+    - name: Copy static site
       uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
       with:
         host: ${{ secrets.DEPLOY_SSH_HOST }}
         username: ${{ secrets.DEPLOY_SSH_USER }}
         key: ${{ secrets.DEPLOY_SSH_KEY }}
-        source: "./site/"
-        target: /srv/sites/lukaskarelat
+        source: "./deploy/lukaskarelat"
+        target: /srv/sites/
+
+    - name: Copy caddyfile
+      uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
+      with:
+        host: ${{ secrets.DEPLOY_SSH_HOST }}
+        username: ${{ secrets.DEPLOY_SSH_USER }}
+        key: ${{ secrets.DEPLOY_SSH_KEY }}
+        source: "./deploy/caddy/lukaskarelat.caddy"
+        target: /srv/stacks/proxy/caddy-cfg
 
