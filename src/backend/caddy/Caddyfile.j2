@@ -1,0 +1,51 @@
+{{HOST_DOMAIN}} {
+
+    rate_limit {
+        zone dynamic_example {
+            match {
+                path /api/newsletter/subscribe
+            }
+            key    {remote_host}
+            events 5
+            window 1h
+        }
+    }
+
+    # newsletter api forwarding
+    route /api/newsletter {
+        
+
+        reverse_proxy {{NEWSLETTER_API_PROXY_HOST}}
+    }
+
+    root * /srv
+	file_server
+
+	# Serve 404.html for any missing file
+	handle_errors {
+		@notFound {
+			expression {http.error.status_code} == 404
+		}
+		rewrite @notFound /404.html
+		file_server
+	}
+}
+
+{{LISTMONK_HOST_DOMAIN}} {
+    # for seo reasons forward root to /archive
+	@root path /
+	redir @root /archive 302
+
+    @subscriptionform path /subscription/form
+    respond @subscriptionform 403
+
+	# Block /admin and any subpaths
+	@admin path /admin*
+	respond @admin 403
+
+    # block /api and any subpaths
+    @api path /api*
+	respond @api 403
+
+    reverse_proxy {{LISTMONK_PROXY_HOST}}
+}

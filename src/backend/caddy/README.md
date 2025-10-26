@@ -12,3 +12,8 @@ If you want to reload the config connect into container
 
 And to reload use
 ``caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile``
+
+## Caddyfile Template
+
+I use ``jinja2`` for templating the deployment Caddyfile. So it can be reused for prod/dev and other hosts. 
+[Online template renderer](https://j2live.ttl255.com/).
