@@ -28,12 +28,16 @@ jobs:
   deploy-static-site:
     needs: build-frontend
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.HOST_DOMAIN }}
     steps:
     - name: Download static site
       uses: actions/download-artifact@v4
       with:
         artifact-ids: ${{ needs.build-frontend.outputs.website-artifict-id }}
         path: ./site
+        merge-multiple: true
 
 
     - name: Verify content
