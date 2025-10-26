@@ -74,3 +74,11 @@ jobs:
         target: /srv/stacks/proxy/caddy-cfg/
         strip_components: 4
 
+    - name: restart proxy
+      uses: appleboy/ssh-action@3ca8a7c5359ac6ad91aa47f1946ece1c3b025004
+      with:
+        host: ${{ secrets.DEPLOY_SSH_HOST }}
+        username: ${{ secrets.DEPLOY_SSH_USER }}
+        key: ${{ secrets.DEPLOY_SSH_KEY }}
+        script: reload_proxy_config
+
