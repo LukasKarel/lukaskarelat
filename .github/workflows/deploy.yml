@@ -62,7 +62,7 @@ jobs:
         key: ${{ secrets.DEPLOY_SSH_KEY }}
         source: "./deploy/lukaskarelat"
         target: /srv/sites/
-        strip_components: 1
+        strip_components: 2
 
     - name: Copy caddyfile
       uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
@@ -72,5 +72,5 @@ jobs:
         key: ${{ secrets.DEPLOY_SSH_KEY }}
         source: "./src/backend/caddy/lukaskarelat.caddy"
         target: /srv/stacks/proxy/caddy-cfg/
-        strip_components: 3
+        strip_components: 4
 
