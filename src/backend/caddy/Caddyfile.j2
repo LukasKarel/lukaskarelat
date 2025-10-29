@@ -1,3 +1,11 @@
+{% if WWW_HOST_DOMAIN %}
+
+{{WWW_HOST_DOMAIN}} {
+    redir {{HOST_DOMAIN}}{uri} permanent
+}
+
+{% endif %}
+
 {{HOST_DOMAIN}} {
 
     rate_limit {

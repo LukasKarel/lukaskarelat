@@ -49,9 +49,32 @@ jobs:
         strict: true
         variables: |
           HOST_DOMAIN=${{vars.HOST_DOMAIN}}
+          WWW_HOST_DOMAIN=${{vars.WWW_HOST_DOMAIN}}
           NEWSLETTER_API_PROXY_HOST=${{vars.NEWSLETTER_API_PROXY_HOST}}
           LISTMONK_HOST_DOMAIN=${{vars.LISTMONK_HOST_DOMAIN}}
           LISTMONK_PROXY_HOST=${{vars.LISTMONK_PROXY_HOST}}
+
+    - name: Create tar archive
+      run: |
+          mkdir -p dist/tar dist/tar/caddy dist/tar/stack
+          cp -r deploy/lukaskarelat dist/tar/lukaskarelat
+          cp src/backend/caddy/lukaskarelat.caddy dist/tar/caddy
+          cp docker-compose.yml docker-compose-prod.yml dist/tar/stack
+          cp -r src/backend/listmonk/static dist/tar/stack/listmonk/static
+
+          tar -czf dist/archive.tar.gz \
+              -C dist/tar .
+    
+    - name: Copy tar
+      uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
+      with:
+        host: ${{ secrets.DEPLOY_SSH_HOST }}
+        username: ${{ secrets.DEPLOY_SSH_USER }}
+        key: ${{ secrets.DEPLOY_SSH_KEY }}
+        source: "dist/archive.tar.gz"
+        target: /srv/sites/
+        rm: true
+        strip_components: 1
 
 
     - name: Copy static site
@@ -62,6 +85,7 @@ jobs:
         key: ${{ secrets.DEPLOY_SSH_KEY }}
         source: "./deploy/lukaskarelat"
         target: /srv/sites/
+        rm: true
         strip_components: 2
 
     - name: Copy caddyfile

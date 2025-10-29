@@ -1,0 +1,15 @@
+services:
+  newsletter_api:
+    networks:
+      - proxy-network
+
+  # listmonk app
+  listmonk:
+    networks:
+      - proxy-network
+
+networks:
+
+  proxy-network: 
+    name: proxy-network
+    external: true
