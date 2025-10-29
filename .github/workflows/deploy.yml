@@ -115,7 +115,7 @@ jobs:
         key: ${{ secrets.DEPLOY_SSH_KEY }}
         script: |
           rm -rf /tmp/lukaskarel/ext
-          mkdir -p /srv/stacks/lukaskarelat
+          mkdir -p /srv/stacks/lukaskarelat /tmp/lukaskarelat/ext
           tar -xvf /tmp/lukaskarelat/archive.tar.gz /tmp/lukaskarel/ext
           rsync --delete -r /tmp/lukaskarel/ext/site /srv/sites/lukaskarelat
           cp /tmp/lukaskarel/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
