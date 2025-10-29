@@ -20,7 +20,7 @@
     }
 
     # newsletter api forwarding
-    route /api/newsletter {
+    route /api/newsletter/* {
         
 
         reverse_proxy {{NEWSLETTER_API_PROXY_HOST}}

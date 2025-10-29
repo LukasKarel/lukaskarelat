@@ -74,7 +74,7 @@ jobs:
           tar -czf dist/archive.tar.gz \
               -C dist/tar .
     
-    - name: Copy tar
+    - name: Publish archive
       uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
       with:
         host: ${{ secrets.DEPLOY_SSH_HOST }}
@@ -84,28 +84,6 @@ jobs:
         target: /tmp/lukaskarelat
         rm: true
         strip_components: 1
-
-
-    # - name: Copy static site
-    #   uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
-    #   with:
-    #     host: ${{ secrets.DEPLOY_SSH_HOST }}
-    #     username: ${{ secrets.DEPLOY_SSH_USER }}
-    #     key: ${{ secrets.DEPLOY_SSH_KEY }}
-    #     source: "./deploy/lukaskarelat"
-    #     target: /srv/sites/lukaskarelat
-    #     rm: true
-    #     strip_components: 3
-
-    # - name: Copy caddyfile
-    #   uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
-    #   with:
-    #     host: ${{ secrets.DEPLOY_SSH_HOST }}
-    #     username: ${{ secrets.DEPLOY_SSH_USER }}
-    #     key: ${{ secrets.DEPLOY_SSH_KEY }}
-    #     source: "./src/backend/caddy/lukaskarelat.caddy"
-    #     target: /srv/stacks/proxy/caddy-cfg/
-    #     strip_components: 4
 
     - name: Deploy
       uses: appleboy/ssh-action@3ca8a7c5359ac6ad91aa47f1946ece1c3b025004
