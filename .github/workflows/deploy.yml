@@ -117,9 +117,9 @@ jobs:
           rm -rf /tmp/lukaskarelat
           mkdir -p /srv/stacks/lukaskarelat
           tar -xvf /tmp/lukaskarelat.tar.gz /tmp/lukaskarelat
-          rsync --delete /tmp/lukaskarelat/site /srv/sites/lukaskarelat
+          rsync --delete -r /tmp/lukaskarelat/site /srv/sites/lukaskarelat
           cp /tmp/lukaskarelat/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
-          rsync --delete /tmp/lukaskarelat/stack /srv/stacks/lukaskarelat
+          rsync --delete -r /tmp/lukaskarelat/stack /srv/stacks/lukaskarelat
           cd /srv/stacks/lukaskarelat
           docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
