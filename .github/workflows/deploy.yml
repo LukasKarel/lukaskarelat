@@ -57,10 +57,21 @@ jobs:
     - name: Create tar archive
       run: |
           mkdir -p dist/tar dist/tar/caddy dist/tar/stack dist/tar/stack/listmonk
-          cp -r deploy/lukaskarelat dist/tar/lukaskarelat
+          cp -r deploy/lukaskarelat dist/tar/site
           cp src/backend/caddy/lukaskarelat.caddy dist/tar/caddy
           cp docker-compose.yml docker-compose-prod.yml dist/tar/stack
           cp -r src/backend/listmonk/static dist/tar/stack/listmonk/static
+
+          cat > dist/tar/stack/.env <<EOF
+            LISTMONK_DB_USERNAME="${{ secrets.LISTMONK_DB_HOST }}"
+            LISTMONK_DB_PASSWORD="${{ secrets.LISTMONK_DB_PASSWORD }}"
+            LISTMONK_DB_HOST="${{ secrets.LISTMONK_DB_HOST }}"
+
+            NEWSLETTER_LISTMONK_USERNAME="${{ secrets.NEWSLETTER_LISTMONK_USERNAME }}"
+            NEWSLETTER_LISTMONK_PASSWORD="${{ secrets.NEWSLETTER_LISTMONK_PASSWORD }}"
+            NEWSLETTER_TOKEN_SECRET="${{ secrets.NEWSLETTER_TOKEN_SECRET }}"
+            NEWSLETTER_ALLOWED_CORS="[\"${{ vars.HOST_DOMAIN }}\"]"
+            EOF
 
           tar -czf dist/archive.tar.gz \
               -C dist/tar .
@@ -72,38 +83,48 @@ jobs:
         username: ${{ secrets.DEPLOY_SSH_USER }}
         key: ${{ secrets.DEPLOY_SSH_KEY }}
         source: "dist/archive.tar.gz"
-        target: /srv/sites/archive.tar.gz
+        target: /tmp/lukaskarelat.tar.gz
         rm: true
         strip_components: 1
 
 
-    - name: Copy static site
-      uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
-      with:
-        host: ${{ secrets.DEPLOY_SSH_HOST }}
-        username: ${{ secrets.DEPLOY_SSH_USER }}
-        key: ${{ secrets.DEPLOY_SSH_KEY }}
-        source: "./deploy/lukaskarelat"
-        target: /srv/sites/lukaskarelat
-        rm: true
-        strip_components: 2
+    # - name: Copy static site
+    #   uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
+    #   with:
+    #     host: ${{ secrets.DEPLOY_SSH_HOST }}
+    #     username: ${{ secrets.DEPLOY_SSH_USER }}
+    #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+    #     source: "./deploy/lukaskarelat"
+    #     target: /srv/sites/lukaskarelat
+    #     rm: true
+    #     strip_components: 3
 
-    - name: Copy caddyfile
-      uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
-      with:
-        host: ${{ secrets.DEPLOY_SSH_HOST }}
-        username: ${{ secrets.DEPLOY_SSH_USER }}
-        key: ${{ secrets.DEPLOY_SSH_KEY }}
-        source: "./src/backend/caddy/lukaskarelat.caddy"
-        target: /srv/stacks/proxy/caddy-cfg/
-        strip_components: 4
+    # - name: Copy caddyfile
+    #   uses: appleboy/scp-action@7179e72a3fa4d4c33870a471708fda724fae7596
+    #   with:
+    #     host: ${{ secrets.DEPLOY_SSH_HOST }}
+    #     username: ${{ secrets.DEPLOY_SSH_USER }}
+    #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+    #     source: "./src/backend/caddy/lukaskarelat.caddy"
+    #     target: /srv/stacks/proxy/caddy-cfg/
+    #     strip_components: 4
 
-    - name: restart proxy
+    - name: Deploy
       uses: appleboy/ssh-action@3ca8a7c5359ac6ad91aa47f1946ece1c3b025004
       with:
         host: ${{ secrets.DEPLOY_SSH_HOST }}
         username: ${{ secrets.DEPLOY_SSH_USER }}
         key: ${{ secrets.DEPLOY_SSH_KEY }}
-        # required -lc that login is triggered and reload function should be loaded then
-        script: bash -lc "reload_proxy_config"
+        script: |
+          rm -rf /tmp/lukaskarelat
+          mkdir -p /srv/stacks/lukaskarelat
+          tar -xvf /tmp/lukaskarelat.tar.gz /tmp/lukaskarelat
+          rsync --delete /tmp/lukaskarelat/site /srv/sites/lukaskarelat
+          cp /tmp/lukaskarelat/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
+          rsync --delete /tmp/lukaskarelat/stack /srv/stacks/lukaskarelat
+          cd /srv/stacks/lukaskarelat
+          docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d
+
+          # required -lc that login is triggered and reload function should be loaded then
+          bash -lc "reload_proxy_config"
 
