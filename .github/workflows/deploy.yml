@@ -56,7 +56,7 @@ jobs:
 
     - name: Create tar archive
       run: |
-          mkdir -p dist/tar dist/tar/caddy dist/tar/stack
+          mkdir -p dist/tar dist/tar/caddy dist/tar/stack dist/tar/stack/listmonk
           cp -r deploy/lukaskarelat dist/tar/lukaskarelat
           cp src/backend/caddy/lukaskarelat.caddy dist/tar/caddy
           cp docker-compose.yml docker-compose-prod.yml dist/tar/stack
