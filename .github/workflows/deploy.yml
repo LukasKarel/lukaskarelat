@@ -62,14 +62,14 @@ jobs:
           cp docker-compose.yml docker-compose-prod.yml dist/tar/stack
           cp -r src/backend/listmonk/static dist/tar/stack/listmonk/static
 
-          echo "LISTMONK_DB_USERNAME=\"${{ secrets.LISTMONK_DB_HOST }}\"" >> dist/tar/stack/.env
+          echo "LISTMONK_DB_USERNAME=\"${{ secrets.LISTMONK_DB_USERNAME }}\"" >> dist/tar/stack/.env
           echo "LISTMONK_DB_PASSWORD=\"${{ secrets.LISTMONK_DB_PASSWORD }}\"" >> dist/tar/stack/.env
           echo "LISTMONK_DB_HOST=\"${{ secrets.LISTMONK_DB_HOST }}\"" >> dist/tar/stack/.env
 
           echo "NEWSLETTER_LISTMONK_USERNAME=\"${{ secrets.NEWSLETTER_LISTMONK_USERNAME }}\"" >> dist/tar/stack/.env
           echo "NEWSLETTER_LISTMONK_PASSWORD=\"${{ secrets.NEWSLETTER_LISTMONK_PASSWORD }}\"" >> dist/tar/stack/.env
           echo "NEWSLETTER_TOKEN_SECRET=\"${{ secrets.NEWSLETTER_TOKEN_SECRET }}\"" >> dist/tar/stack/.env
-          echo "NEWSLETTER_ALLOWED_CORS=\"[\"${{ vars.HOST_DOMAIN }}\"]\"" >> dist/tar/stack/.env
+          echo "NEWSLETTER_ALLOWED_CORS=\"[\\\"${{ vars.HOST_DOMAIN }}\\\"]\"" >> dist/tar/stack/.env
 
           tar -czf dist/archive.tar.gz \
               -C dist/tar .
@@ -117,10 +117,14 @@ jobs:
           rm -rf /tmp/lukaskarelat/ext
           mkdir -p /srv/stacks/lukaskarelat /tmp/lukaskarelat/ext
           tar -xvf /tmp/lukaskarelat/archive.tar.gz -C /tmp/lukaskarelat/ext
+
+          cd /srv/stacks/lukaskarelat
+          docker compose down
+
           rsync --delete -r /tmp/lukaskarelat/ext/site/ /srv/sites/lukaskarelat
           cp /tmp/lukaskarelat/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
           rsync --delete -r /tmp/lukaskarelat/ext/stack/ /srv/stacks/lukaskarelat
-          cd /srv/stacks/lukaskarelat
+
           docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
           # required -lc that login is triggered and reload function should be loaded then
