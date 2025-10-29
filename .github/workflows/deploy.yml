@@ -71,7 +71,7 @@ jobs:
           echo "NEWSLETTER_TOKEN_SECRET=\"${{ secrets.NEWSLETTER_TOKEN_SECRET }}\"" >> dist/tar/stack/.env
           echo "NEWSLETTER_ALLOWED_CORS=\"[\"${{ vars.HOST_DOMAIN }}\"]\"" >> dist/tar/stack/.env
 
-          tar -czf dist/lukaskarelat.tar.gz \
+          tar -czf dist/archive.tar.gz \
               -C dist/tar .
     
     - name: Copy tar
@@ -80,8 +80,8 @@ jobs:
         host: ${{ secrets.DEPLOY_SSH_HOST }}
         username: ${{ secrets.DEPLOY_SSH_USER }}
         key: ${{ secrets.DEPLOY_SSH_KEY }}
-        source: "dist/lukaskarelat.tar.gz"
-        target: /tmp
+        source: "dist/archive.tar.gz"
+        target: /tmp/lukaskarelat
         rm: true
         strip_components: 1
 
@@ -114,12 +114,12 @@ jobs:
         username: ${{ secrets.DEPLOY_SSH_USER }}
         key: ${{ secrets.DEPLOY_SSH_KEY }}
         script: |
-          rm -rf /tmp/lukaskarelat
+          rm -rf /tmp/lukaskarel/ext
           mkdir -p /srv/stacks/lukaskarelat
-          tar -xvf /tmp/lukaskarelat.tar.gz /tmp/lukaskarelat
-          rsync --delete -r /tmp/lukaskarelat/site /srv/sites/lukaskarelat
-          cp /tmp/lukaskarelat/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
-          rsync --delete -r /tmp/lukaskarelat/stack /srv/stacks/lukaskarelat
+          tar -xvf /tmp/lukaskarelat.tar.gz /tmp/lukaskarel/ext
+          rsync --delete -r /tmp/lukaskarel/ext/site /srv/sites/lukaskarelat
+          cp /tmp/lukaskarel/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
+          rsync --delete -r /tmp/lukaskarel/ext/stack /srv/stacks/lukaskarelat
           cd /srv/stacks/lukaskarelat
           docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
