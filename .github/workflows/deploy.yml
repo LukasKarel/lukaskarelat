@@ -116,7 +116,7 @@ jobs:
         script: |
           rm -rf /tmp/lukaskarel/ext
           mkdir -p /srv/stacks/lukaskarelat
-          tar -xvf /tmp/lukaskarelat.tar.gz /tmp/lukaskarel/ext
+          tar -xvf /tmp/lukaskarelat/archive.tar.gz /tmp/lukaskarel/ext
           rsync --delete -r /tmp/lukaskarel/ext/site /srv/sites/lukaskarelat
           cp /tmp/lukaskarel/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
           rsync --delete -r /tmp/lukaskarel/ext/stack /srv/stacks/lukaskarelat
