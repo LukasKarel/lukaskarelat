@@ -65,6 +65,7 @@ jobs:
           echo "LISTMONK_DB_USERNAME=\"${{ secrets.LISTMONK_DB_USERNAME }}\"" >> dist/tar/stack/.env
           echo "LISTMONK_DB_PASSWORD=\"${{ secrets.LISTMONK_DB_PASSWORD }}\"" >> dist/tar/stack/.env
           echo "LISTMONK_DB_HOST=\"${{ secrets.LISTMONK_DB_HOST }}\"" >> dist/tar/stack/.env
+          echo "LISTMONK_DB_SSL_MODE=\"${{ secrets.LISTMONK_DB_SSL_MODE }}\"" >> dist/tar/stack/.env
 
           echo "NEWSLETTER_LISTMONK_USERNAME=\"${{ secrets.NEWSLETTER_LISTMONK_USERNAME }}\"" >> dist/tar/stack/.env
           echo "NEWSLETTER_LISTMONK_PASSWORD=\"${{ secrets.NEWSLETTER_LISTMONK_PASSWORD }}\"" >> dist/tar/stack/.env

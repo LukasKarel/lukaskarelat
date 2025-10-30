@@ -7,12 +7,12 @@ services:
   listmonk:
     networks:
       - proxy-network
-      - proxy-network
+      - postgres-network
 
 networks:
 
   proxy-network: 
-    name: postgres-network
+    name: proxy-network
     external: true
 
   postgres-network: 
