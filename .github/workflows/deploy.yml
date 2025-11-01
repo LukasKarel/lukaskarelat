@@ -101,13 +101,11 @@ jobs:
 
           cd /srv/stacks/lukaskarelat
 
-          # in the future i want to remove this line. But this requires to build listmonk in own image
-          docker compose down
           rsync --delete -r /tmp/lukaskarelat/ext/site/ /srv/sites/lukaskarelat
           cp /tmp/lukaskarelat/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
 
           # do not remove old files or folders (there might be some folders we need for mounts)
-          rsync -r /tmp/lukaskarelat/ext/stack/ /srv/stacks/lukaskarelat
+          rsync --delete -r /tmp/lukaskarelat/ext/stack/ /srv/stacks/lukaskarelat
 
           docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d
 
