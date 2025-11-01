@@ -60,7 +60,6 @@ jobs:
           cp -r deploy/lukaskarelat dist/tar/site
           cp src/backend/caddy/lukaskarelat.caddy dist/tar/caddy
           cp docker-compose.yml docker-compose-prod.yml dist/tar/stack
-          cp -r src/backend/listmonk/static dist/tar/stack/listmonk/static
 
           echo "LISTMONK_DB_USERNAME=\"${{ secrets.LISTMONK_DB_USERNAME }}\"" >> dist/tar/stack/.env
           echo "LISTMONK_DB_PASSWORD=\"${{ secrets.LISTMONK_DB_PASSWORD }}\"" >> dist/tar/stack/.env

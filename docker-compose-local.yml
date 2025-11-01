@@ -18,12 +18,17 @@ services:
       - proxy
 
   newsletter_api:
+    image: !reset null
     ports:
       - "9001:80"
     networks:
       - proxy
 
   listmonk:
+    image: !reset null
+    build:
+      context: ./listmonk
+      dockerfile: Dockerfile
     ports:
       - "9000:80"
     networks:

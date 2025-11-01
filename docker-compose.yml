@@ -17,7 +17,7 @@ services:
 
   # listmonk app
   listmonk:
-    image: listmonk/listmonk:v5.1.0
+    image: ghcr.io/lukaskarel/lukaskarelat-listmonk:0.0.1
     container_name: ${STACK_NAME:-lukaskarelat}-listmonk_app
     restart: unless-stopped
     command: [sh, -c, "./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && ./listmonk --config '' --static-dir=/listmonk/static"]
@@ -37,16 +37,13 @@ services:
       LISTMONK_db__max_lifetime: 300s
       TZ: Europe/Vienna
     volumes:
-      - type: volume
-        source: listmonk-uploads # Mount an uploads directory on the host to /listmonk/uploads inside the container.
-        target: /listmonk/uploads # To use this, change directory path in Admin -> Settings -> Media to /listmonk/uploads
-      - ./listmonk/static:/listmonk/static
+      - listmonk_uploads:/listmonk/uploads
     networks:
       - newsletter
 
 
 volumes:
-  listmonk-uploads:
+  listmonk_uploads:
 
 networks:
   newsletter:
