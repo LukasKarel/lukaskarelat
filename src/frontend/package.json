@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite dev --host",
 		"build": "vite build",
-		"preview": "vite preview",
+		"preview": "vite preview --host",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
@@ -25,6 +25,7 @@
 		"vite": "^6.2.6"
 	},
 	"dependencies": {
+		"@fontsource-variable/arimo": "^5.2.8",
 		"zod": "^4.1.12"
 	}
 }

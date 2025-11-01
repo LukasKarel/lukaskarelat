@@ -2,3 +2,5 @@
 @plugin "daisyui" {
   themes: business --default;
 }
+
+@import '@fontsource-variable/arimo/wght.css'

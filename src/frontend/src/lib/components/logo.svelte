@@ -1,6 +1,6 @@
 <svg
   viewBox="0 0 512 512"
-  class="w-full h-auto"
+  class="w-full h-full"
   xmlns="http://www.w3.org/2000/svg"
 >
   <g>
@@ -14,7 +14,7 @@
         y="200.61206"
         id="svg_8"
         font-size="24"
-        font-family="'Arimo'"
+        font-family="'Arimo Variable'"
         text-anchor="start"
         xml:space="preserve"
         transform="matrix(18.8361 0 0 18.8361 -2725.44 -3354.63)">L</text
@@ -27,7 +27,7 @@
         y="104.7748"
         id="svg_9"
         font-size="24"
-        font-family="'Arimo'"
+        font-family="'Arimo Variable'"
         text-anchor="start"
         xml:space="preserve"
         transform="matrix(24.6609 0 0 20.6406 -4605.89 -1739.15)">K</text
