@@ -95,13 +95,12 @@ jobs:
         script: |
           # next line is required that script fails if one command returns non-zero return code
           set -e
-          
+
           rm -rf /tmp/lukaskarelat/ext
           mkdir -p /srv/stacks/lukaskarelat /tmp/lukaskarelat/ext
           tar -xvf /tmp/lukaskarelat/archive.tar.gz -C /tmp/lukaskarelat/ext
 
           cd /srv/stacks/lukaskarelat
-          docker compose down
 
           rsync --delete -r /tmp/lukaskarelat/ext/site/ /srv/sites/lukaskarelat
           cp /tmp/lukaskarelat/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
