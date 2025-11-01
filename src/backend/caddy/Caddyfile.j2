@@ -44,6 +44,9 @@
 	@root path /
 	redir @root /archive 302
 
+    @subscriptionForm path /subscription/form
+    respond @subscriptionForm 403
+
     @restricted path_regexp restricted ^/(admin|api)
 
     # Deny if restricted and NOT from Tailscale
