@@ -13,7 +13,7 @@
             match {
                 path /api/newsletter/subscribe
             }
-            key    {remote_host}
+            key    {client_ip}
             events 5
             window 1h
         }
@@ -44,16 +44,13 @@
 	@root path /
 	redir @root /archive 302
 
-    @subscriptionform path /subscription/form
-    respond @subscriptionform 403
+    @restricted path_regexp restricted ^/(admin|api)
 
-	# Block /admin and any subpaths
-	@admin path /admin*
-	respond @admin 403
-
-    # block /api and any subpaths
-    @api path /api*
-	respond @api 403
+    # Deny if restricted and NOT from Tailscale
+    handle @restricted {
+            @not_tailscale not client_ip 100.64.0.0/10
+            respond @not_tailscale 403
+    }    
 
     reverse_proxy {{LISTMONK_PROXY_HOST}}
 }
