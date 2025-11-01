@@ -102,6 +102,8 @@ jobs:
 
           cd /srv/stacks/lukaskarelat
 
+          # in the future i want to remove this line. But this requires to build listmonk in own image
+          docker compose down
           rsync --delete -r /tmp/lukaskarelat/ext/site/ /srv/sites/lukaskarelat
           cp /tmp/lukaskarelat/ext/caddy/lukaskarelat.caddy /srv/stacks/proxy/caddy-cfg/
 
