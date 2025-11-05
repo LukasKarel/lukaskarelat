@@ -3,4 +3,6 @@
   themes: business --default;
 }
 
-@import '@fontsource-variable/arimo/wght.css'
+@import '@fontsource-variable/arimo/wght.css';
+
+@import 'prismjs/themes/prism-tomorrow.css'
