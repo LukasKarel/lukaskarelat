@@ -1,6 +1,11 @@
 <script lang="ts">
-  import Article1 from "$lib/blog/entries/article1.mdx";
+  const { data } = $props();
 </script>
 
-<Article1 />
-
+<ul>
+  {#each data.posts as post}
+    <il>
+      <a href={`/blog/${post.id}`}>{post.title}</a>
+    </il>
+  {/each}
+</ul>
