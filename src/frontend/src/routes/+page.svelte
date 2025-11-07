@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { z } from "zod";
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import { PUBLIC_HOST } from "$env/static/public";
 
   const emailSchema = z.email();
 
@@ -12,13 +12,13 @@
   let subscribe_failed = $state(false);
   let subscribe_success = $state(false);
 
-  let toast_timeout = 0;
+  let toast_timeout: NodeJS.Timeout;
 
   const loadToken = async () => {
     let retryTime = 8 * 60 * 1000;
     try {
       const response = await fetch(
-        new URL("/api/newsletter/formToken", PUBLIC_API_URL).toString(),
+        new URL("/api/newsletter/formToken", PUBLIC_HOST).toString(),
       );
       if (response.ok) {
         const body = await response.json();
@@ -48,7 +48,7 @@
     const currentMail = mail;
     mail = "";
     const response = await fetch(
-      new URL("/api/newsletter/subscribe", PUBLIC_API_URL).toString(),
+      new URL("/api/newsletter/subscribe", PUBLIC_HOST).toString(),
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,12 +101,7 @@
               id="email"
             />
           </label>
-          <input
-            type="text"
-            class="hidden"
-            name="name"
-            bind:value={address}
-          />
+          <input type="text" class="hidden" name="name" bind:value={address} />
           <button
             class="btn btn-secondary uppercase"
             disabled={!emailSchema.safeParse(mail).success ||
