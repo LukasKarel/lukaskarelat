@@ -45,7 +45,8 @@ jobs:
       - name: Build site
         run: npm run build
         env:
-          PUBLIC_API_URL: ${{ vars.SECURE_HOST_DOMAIN }}
+          PUBLIC_HOST: ${{ vars.SECURE_HOST_DOMAIN }}
+          VITE_PUBLIC_HOST: ${{ vars.SECURE_HOST_DOMAIN }}
         
           
       - name: Upload static site
