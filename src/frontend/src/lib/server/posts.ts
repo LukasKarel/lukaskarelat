@@ -39,7 +39,7 @@ const dateSchema = z.preprocess((val) => {
 const entryMetadataSchema = z.object({
   id: z.string().regex(SLUG_REGEX, { error: 'Invalid slug (lowercase letters, numbers and single dashes only)' }),
   title: z.string(),
-  description: z.string().max(256),
+  description: z.string().max(160),
   publicationDate: dateSchema,
   lastEditTime: dateSchema
 })
