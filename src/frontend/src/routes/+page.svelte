@@ -2,6 +2,9 @@
   import { onMount } from "svelte";
   import { z } from "zod";
   import { PUBLIC_HOST } from "$env/static/public";
+  import MinimumHead from "$lib/components/head/MinimumHead.svelte";
+  import { DefaultWebSite } from "$lib/head/schemas/WebSite";
+  import WebSiteSchema from "$lib/components/head/WebSiteSchema.svelte";
 
   const emailSchema = z.email();
 
@@ -73,9 +76,14 @@
   };
 </script>
 
-<svelte:head>
-  <title>Home</title>
-</svelte:head>
+<MinimumHead
+  title={DefaultWebSite.name}
+  description="Personal website of Lukas Karel. A place to learn, build and grow together."
+  pathname=""
+  imagePath={"austin-chan-sign-unsplash.jpg"}
+/>
+
+<WebSiteSchema data={DefaultWebSite} />
 
 <div class="hero bg-base-200 min-h-[calc(100vh-5rem)]">
   <div class="hero-content text-center">

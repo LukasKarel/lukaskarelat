@@ -41,7 +41,10 @@ const entryMetadataSchema = z.object({
   title: z.string(),
   description: z.string().max(160),
   publicationDate: dateSchema,
-  lastEditTime: dateSchema
+  lastEditTime: dateSchema,
+  tags: z.array(z.string()).optional(),
+  tools: z.array(z.string()).optional(),
+  project: z.string().optional()
 })
 
 const lastEditTime = async (filePath: string) => {
@@ -68,6 +71,16 @@ async function getPostsMetadata() {
   return Promise.all(Object.entries(blogEntries)
     .map(async ([filePath, rawContent]) => {
       const { data } = matter(rawContent);
+      const typedData = data as {
+        title: string,
+        description: string,
+        createdAt: Date,
+        lastEditTime: Date,
+        tags?: string[],
+        tools?: string[],
+        project?: string
+      };
+
       const id = filePath
         .split('/')
         .pop()
@@ -75,11 +88,14 @@ async function getPostsMetadata() {
       const editTime = await lastEditTime(filePath);
 
       const result = entryMetadataSchema.safeParse({
-        id,
-        title: data.title,
-        description: data.description,
-        publicationDate: data.createdAt,
+        id: id.toLowerCase(),
+        title: typedData.title,
+        description: typedData.description,
+        publicationDate: typedData.createdAt,
         lastEditTime: editTime,
+        tags: typedData.tags?.map(t => t.toLowerCase()),
+        tools: typedData.tools?.map(t => t.toLowerCase()),
+        project: typedData.project?.toLowerCase()
       });
 
       if (result.success) {

@@ -10,6 +10,10 @@
 
 @import 'prismjs/themes/prism-tomorrow.css';
 
+.grid-auto-size {
+  grid-template-columns: repeat(auto-fill, 320px);
+  justify-content: center;
+}
 
 .prose {
   :is(h1, h2, h3, h4, h5, h6) a {
