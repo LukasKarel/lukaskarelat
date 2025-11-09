@@ -29,8 +29,6 @@
 />
 
 <svelte:head>
-  <link rel="sitemap" href="/sitemap.xml" />
-
   <link rel="canonical" href={canonicalURL} />
 
   <title>{title}</title>

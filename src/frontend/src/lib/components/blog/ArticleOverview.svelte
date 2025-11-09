@@ -10,7 +10,7 @@
   );
 </script>
 
-<div class="card shadow-lg w-full bg-neutral">
+<div class="card shadow-lg w-full bg-neutral rounded-2xl">
   <p class="absolute right-4 top-2">{formattedDate}</p>
   <div class="card-body justify-between pt-8">
     <div class="flex flex-col justify-between grow gap-2">

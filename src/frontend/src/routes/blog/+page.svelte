@@ -14,7 +14,7 @@
 </script>
 
 <MinimumHead
-  title="Lukas Karel - All Posts"
+  title="All Posts - Lukas Karel"
   description="An overview over all posts I wrote"
   pathname="/blog"
   imagePath={undefined}

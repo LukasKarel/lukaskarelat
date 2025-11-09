@@ -9,7 +9,7 @@ export type WebSite = {
 
 const DefaultWebSite: WebSite = {
   "@type": "WebSite",
-  name: "Lukas Karel - Learning, Building & Growth",
+  name: "Learning, Building & Growth - Lukas Karel",
   url: "https://lukaskarel.at",
   author: DefaultAuthor,
 }

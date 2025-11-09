@@ -57,8 +57,8 @@
         </ul>
       </div>
     </nav>
-    <div class="flex flex-col">
+    <main class="flex flex-col">
       {@render children()}
-    </div>
+    </main>
   </div>
 </div>
