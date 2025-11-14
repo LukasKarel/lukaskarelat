@@ -1,0 +1,328 @@
+---
+title: Why I started with Opentofu and Ansible
+description: For my personal website I used opentofu and ansible to set up the infrastructure. At the moment I only have one VPS. So why did I use these tools?
+createdAt: 2025-11-14
+tools:
+- ansible 
+- opentofu
+tags:
+- TECH
+project: lukaskarelat
+---
+
+<script lang="tsx">
+
+import PostSignature from "$lib/components/blog/PostSignature.svelte"
+
+</script>
+
+# {title}
+
+If we want to host our projects in the web we need some kind of server to run our services. It is possible to run them in your
+home network but this might not best idea. Because you would need to use some kind of ``dyndns`` open your private firewall
+and most important a high speed internet. To prevent malicious access or some script kiddys to use up your full bandwith, you need select
+a hosting provider of your choice.
+
+## My hosting provider
+
+I decided for myself that I don't want to support the great hosting providers of the US to run my website. First of all I don't like
+to have a 100% exposure of everything in the US. I like to split risk across multiple countries. Another reason is I **WANT to host in EU**.
+Not only on european data centers. I want them to be managed by a european company. I just trust them more to be real compliant with
+EU regulations. Furthermore I hate the idea of 100% centralisation. We saw in past events that one outage in AWS will hurt an extreme
+amount of companies. So I had to decide between [IONOS](https://www.ionos.de/) and [scaleway](https://www.scaleway.com/en/).
+
+I liked the look and feel more on scaleway. Thats why I decided to use scaleway for the initial hosting of my webpage.
+
+## Repeatable Deployments and Documentation
+
+In the past I hated it to write documentation. As a young and ``naive developer`` I assumed *code is documentation enough*.
+Unpopular opinion: code often **IS** enough documentation, because most comments in code give no extra information.
+I got really good in reading code, because most code I worked, on was not documented. But as soon as projects get bigger
+and tasks get repetitive, we need some kind of documentation.
+
+I have really little experience with **DevOps** but I have realized that reproducibility is really important for myself.
+This is why I chose ``Ansible`` and ``opentofu``. I want to be able to move my stack from one hosting provider
+to another really fast. In case of emergency I want to move my services fast.
+
+I haven't use these tools for a longer time period. Nor have I done large deployments with them. But I really like the
+main ideas of them. **Managing infrastructure with code.** I love it. So I don't have to write all documentation about
+setting up by myself. The code I create is already part of the documentation.
+
+- Servers
+- Hostname
+- Setup scripts
+- Paths
+- Users
+- **AND *SOME* SECRETS**
+
+can be stored in one repository and are version controlled. I LOVE THAT. I don't have to remember how I setup my devices.
+There are **Ansible Playbooks** that explain how I did the installation of a specific server. As these files are version controlled, it gets
+easier for me to write blog posts. If I did not write a blog post for a long time, I could just check how I did something
+in the past.
+
+### How I learned opentofu
+
+My first ``opentofu`` file looked something like this. *To be honest I added also the screts into the file for testing.
+I changed to environment variables after the first tests where successful*. I just tried to create a DNS entry for
+my domain. Easy.
+
+```hcl
+terraform {
+required_providers {
+    scaleway = {
+      source = "scaleway/scaleway"
+    }
+  }
+  required_version = ">= 1.2.0"
+  
+}
+
+provider "scaleway" {
+  region     = "fr-par"
+  zone       = "fr-par-1"
+}
+
+
+resource "scaleway_domain_record" "root" {
+  dns_zone = "lukaskarel.at"
+  name     = ""
+  type     = "A"
+  data     = "127.0.0.1"
+  ttl      = 3600
+}
+```
+
+My next step was to add a ``S3 Backend`` for state management. For people who don't know: ``opentofu``
+stores the current state of the infrastructure in a file. So tofu is able to figure out the difference between
+current state and desired state. This is also required to know what has to be removed if required.
+I did not want to store that file on my filesystem. Because as soon as something dies, I'm in trouble.
+So I added S3 storage from scaleway.
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket   = "<BUCKET>"
+    key      = "<FILENAME>"
+    endpoint = "<SCALEWAY REGION ENDPOINT>"
+    encrypt = true
+    skip_metadata_api_check = true
+    skip_credentials_validation = true
+    skip_requesting_account_id = true
+    skip_region_validation = true
+  }
+}
+```
+
+It took me quite some kind time to figure out which environment variables are required. I even installed the
+AWS CLI because I couldn't figure it what I was doing wrong. Until I realized I just did not set the environment
+variables correctly. Yea some time waste but finally it worked.
+
+```bash
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+```
+
+After that I added a virtual machine (*scaleway_instance*) with public ip to my deployment. To setup my VPS
+I used [cloud-init](https://cloud-init.io/). My ``cloud-init`` script installed ansible locally and performed
+some setup tasks like installing ``docker`` & ``tailscale``.
+
+This was one of my first ``cloud-init`` files.
+
+```yaml
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - curl
+  - git
+  - ansible-core
+
+write_files:
+  - path: /root/setup.yml
+    permissions: '0644'
+    content: |
+      ${indent(6, playbook_yml)}
+ 
+
+runcmd:
+  - echo "Running local Ansible playbook..."
+  - ansible-playbook /root/setup.yml
+  - echo "Hello from cloud-init!" > /root/hello.txt
+```
+
+With following ``opentofu`` definition of my virtual machine with ``ansible-playbook`` integration.
+
+```hcl
+resource "scaleway_instance_ip" "public_ip" {}
+
+resource "scaleway_instance_security_group" "www" {
+  name = "web-root-security"
+  inbound_default_policy  = "drop"
+  outbound_default_policy = "accept"
+
+  inbound_rule {
+    action = "accept"
+    port   = "22"
+  }
+
+  inbound_rule {
+    action = "accept"
+    port   = "80"
+  }
+
+  inbound_rule {
+    action = "accept"
+    port   = "443"
+  }
+}
+
+resource "scaleway_instance_server" "root_web_server" {
+  type  = "STARDUST1-S"
+  image = "ubuntu_noble"
+  name = "root-web-server"
+  ip_id = scaleway_instance_ip.public_ip.id
+  security_group_id = scaleway_instance_security_group.www.id
+
+  tags = ["prod", "public", "tofu"]
+
+  user_data = {
+    cloud-init = templatefile("${path.module}/cloud-init.yaml", {
+      playbook_yml = file("${path.module}/playbooks/setup.yml")
+    })
+  }
+}
+
+output "web-public-ip" {
+  description = "public ip for webserver"
+  value       = "${scaleway_instance_ip.public_ip.address}"
+}
+```
+
+I later realized that it is not common practice to **run ``ansible`` on managed nodes**.
+I switched to install ``ansible`` on my control node. This is when i removed
+``cloud-init`` again from my ``opentofu`` configuration files.
+
+### How I learned Ansible
+
+My quick start was already explained in the last section with ``opentofu``. Then i got
+deeper into ``ansible``. This is when I understood **ansible inventories**. An inventory
+in ``ansible`` is just a file defining all available nodes of your infrastructure.
+Then you can assign groups to your nodes.
+This allows to [set variables only for specific groups](https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_inventory.html#assigning-a-variable-to-many-machines-group-variables) (``[group_vars]``).
+Your **playbooks** define required group assignments.
+When you run ``ansible playbook`` with a playbook only for ``docker-hosts`` it will run
+that "script" only on nodes in the group ``docker-hosts`` sequentally.
+
+My first ``playbook`` was installing docker without using ``ansible-galaxy``.
+One benefit of ``ansible`` is that user will create & maintain "scripts" (``ansible-roles``)
+that configure specific parts of your infrastructure.
+``ansible-galaxy`` is **a package manager for ``ansible``**. So you can use
+the roles created by other users.
+One package i use is [artis3n.tailscale](https://github.com/artis3n/ansible-collection-tailscale).
+
+#### Ansible Vault
+
+To setup ``tailscale`` automatically I needed to create a token. But where to store that token?
+Usually you store secrets as environment variables or as git ignored files. But as soon as you
+
+- delete the repository from your devices
+- get a new device
+- run playbooks automatically in a release/deployment pipeline
+
+The maintainability of secrets gets out of hand. I was already annoyed maintaining one secret.
+Only imaging the struggle to setup the environment after I switch to another device made me think
+how can I store these **secret dependencies somewhere secure**.
+
+This is how I found [``ansible-vault``](https://docs.ansible.com/projects/ansible/latest/vault_guide/vault.html). ``ansible-vault`` is an extension to encrypt variables
+for usage in ``ansible-playbooks``. You are able to encrypt variables on its own, or
+encrypt complete files with a secret.
+I decided that I want to encrypt complete files. This integrates extremely good with
+``[group_vars]``. This allows me to store secrets in my git repository **without
+leaking them**. This allows me to have **source-controlled secrets**.
+Of course my secret for encrypting/decrypting has to be secure.
+
+My inventory folders for each group always has a ``vars.yml`` file with all
+variables. And another ``vault.yml`` file that is encrypted using ``ansible-vault``.
+For each secret in ``vault.yml`` is always a variable in ``vars.yml`` that
+references the secret.
+
+Example:
+``vars.yml``
+
+```yaml
+tailscale_auth_key: "{{vault_tailscale_auth_key}}"
+```
+
+plaintext ``vault.yml`` before encryption
+
+```yaml
+vault_tailscale_auth_key: "!MySuPeRsEcReTkEy234"
+```
+
+Then I don't need to decrypt the ``vault.yml`` to know how I named the secrets.
+I can also just reference the variables in my playbooks. Only if I or my playbooks
+require access to secrets, I need to configure my vault in the ``CLI``.
+
+#### Ansible Vault with 1Password
+
+This is why I wanted to integrate ``1Password`` into ``ansible``. I read
+the docs of ``ansible`` and they [mentioned that third-party apps
+and scripts](https://docs.ansible.com/projects/ansible/latest/vault_guide/vault_managing_passwords.html#storing-passwords-in-third-party-tools-with-vault-password-client-scripts) can be used to retrieve the vault-password.
+I immediately decided to integrate the ``1password cli``.
+If I had read the docs more precisely the setup would be much faster.
+It took me quite sometime until I finally was able to use my
+python script as password-provider. I read quite some source code
+of ``ansible-vault`` to find my problems. But the answer
+was also in the docs. I just did not read them carefully enough.
+
+Feel free to use my script. Just name the ``1password vault`` and ``1password element``
+according to your needs. I added two two ansible-vault ids with ``dev`` and ``prod`` but
+remove them if you do not care. You do need to install [1password CLI](https://developer.1password.com/docs/cli/) and allow access
+to in your [1password desktop integration](https://developer.1password.com/docs/cli/get-started/#step-2-turn-on-the-1password-desktop-app-integration).
+You need to allow execution (``chmod +x 1password-provider-client.py``) on the script otherwise
+``ansible`` wont use it correctly! (the extension ``-client.py`` is extremely important!!!)
+
+```python
+#!/usr/bin/env python3
+
+import argparse
+import os
+import sys
+
+def build_arg_parser():
+    parser = argparse.ArgumentParser(description='Get a vault password from 1password')
+
+    parser.add_argument('--vault-id', action='store', default=None,
+                        dest='vault_id',
+                        help='name of the vault secret to get from 1password')
+    return parser
+
+def main():
+    arg_parser = build_arg_parser()
+    args = arg_parser.parse_args()
+
+    keyname = args.vault_id
+    if keyname == "prod":
+        res = os.system("op read op://<YOUR 1Password VAULT>/AnsibleVault/password")
+    elif keyname == "dev":
+        res = os.system("op read op://<YOUR 1Password VAULT>/AnsibleVault/password")
+    else:
+        print(keyname)
+        sys.exit(2)
+    
+    if res != 0:
+        sys.exit(res)
+
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+```
+
+## Final Remarks
+
+This was a quick overview why and how I use ``opentofu`` and ``ansible`` to manage my
+infrastructure. Another missing piece of my website deployment is [caddy](https://caddyserver.com/).
+I guess my next post will explain how my first deployment of my website looked like.
+
+<PostSignature />

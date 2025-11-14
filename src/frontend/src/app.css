@@ -16,8 +16,13 @@
 }
 
 .prose {
+  :is(h1, h2, h3, h4, h5, h6) {
+
+    /* create offset if scrolling to heading by id that sticky navbar on top does not cover */
+    scroll-margin-top: 100px;
+  }
+
   :is(h1, h2, h3, h4, h5, h6) a {
-    /*display: inline-block;*/
     text-decoration: none;
     display: inline-block;
   }

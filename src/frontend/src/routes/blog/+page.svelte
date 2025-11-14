@@ -21,7 +21,7 @@
 />
 
 <main class="my-8 mx-4 sm:mx-auto sm:min-w-[95%] lg:min-w-[75%]">
-  <Heading level={1}>Posts</Heading>
+  <Heading level={1}>Latest Articles:</Heading>
   <div
     class="grid [grid-template-columns:repeat(auto-fill,_320px)] justify-center gap-4"
   >

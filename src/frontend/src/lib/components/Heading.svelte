@@ -25,4 +25,10 @@
     font-size: 2rem;
     font-weight: 700;
   }
+
+  h2 {
+    margin-block-end: 2rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
 </style>

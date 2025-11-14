@@ -10,8 +10,7 @@ jobs:
     strategy:
       matrix:
         service: 
-          - { name: newsletter, image_name: "lukaskarelat-newsletter", image_description: ""}
-          - { name: listmonk, image_name: "lukaskarelat-listmonk", image_description: ""}
+#          - { name: newsletter, image_name: "lukaskarelat-newsletter", image_description: ""}
     permissions:
       contents: read
       packages: write

@@ -1,20 +1,4 @@
 services:
-  newsletter_api:
-    networks:
-      - proxy-network
 
-  # listmonk app
-  listmonk:
-    networks:
-      - proxy-network
-      - postgres-network
 
 networks:
-
-  proxy-network: 
-    name: proxy-network
-    external: true
-
-  postgres-network: 
-    name: postgres-network
-    external: true

@@ -12,4 +12,9 @@ project: lukaskarelat
 
 <script lang="tsx">
 
+import PostSignature from "$lib/components/blog/PostSignature.svelte"
 </script>
+
+# {title}
+
+<PostSignature />

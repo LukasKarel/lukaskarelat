@@ -6,6 +6,27 @@
   let { children } = $props();
 </script>
 
+{#snippet socials(classname?: string)}
+  <li class={classname ?? ""}>
+    <a href="https://github.com/LukasKarel" target="_blank"> GITHUB </a>
+  </li>
+  <li class={classname ?? ""}>
+    <a href="https://www.instagram.com/karel_lu/" target="_blank">
+      INSTAGRAM
+    </a>
+  </li>
+  <li class={classname ?? ""}>
+    <a href="https://bsky.app/profile/lukaskarel.bsky.social" target="_blank">
+      BLUESKY
+    </a>
+  </li>
+  <li class={classname ?? ""}>
+    <a href="https://www.reddit.com/user/LukasjEEEH/" target="_blank">
+      REDDIT
+    </a>
+  </li>
+{/snippet}
+
 <div class="drawer">
   <div class="drawer-content flex flex-col">
     <!-- Navbar -->
@@ -20,40 +41,11 @@
             <details>
               <summary>SOCIALS</summary>
               <ul class="bg-base-100 rounded-t-none p-2">
-                <li>
-                  <a href="https://github.com/LukasKarel" target="_blank">
-                    GITHUB
-                  </a>
-                </li>
-                <li>
-                  <a href="https://www.instagram.com/karel_lu/" target="_blank">
-                    INSTAGRAM
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.reddit.com/user/LukasjEEEH/"
-                    target="_blank"
-                  >
-                    REDDIT
-                  </a>
-                </li>
+                {@render socials()}
               </ul>
             </details>
           </li>
-          <li class="hidden sm:inline">
-            <a href="https://github.com/LukasKarel" target="_blank"> GITHUB </a>
-          </li>
-          <li class="hidden sm:inline">
-            <a href="https://www.instagram.com/karel_lu/" target="_blank">
-              INSTAGRAM
-            </a>
-          </li>
-          <li class="hidden sm:inline">
-            <a href="https://www.reddit.com/user/LukasjEEEH/" target="_blank">
-              REDDIT
-            </a>
-          </li>
+          {@render socials("hidden sm:inline")}
         </ul>
       </div>
     </nav>

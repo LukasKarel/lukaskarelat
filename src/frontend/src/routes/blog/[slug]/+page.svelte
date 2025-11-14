@@ -29,7 +29,7 @@
 <BlogPostingSchema data={blogPostingSchema} />
 
 <article
-  class="prose mx-auto min-w-[90%] max-w-[95%] sm:min-w-[80%] sm:max-w-[90%] md:min-w-[60%] md:max-w-[80%] lg:min-w-[50%] lg:max-w-[55%] mt-2"
+  class="prose mx-auto mb-16 min-w-[90%] max-w-[95%] sm:min-w-[80%] sm:max-w-[90%] md:min-w-[60%] md:max-w-[80%] lg:min-w-[50%] lg:max-w-[55%] mt-2"
 >
   {@render post()}
 </article>
