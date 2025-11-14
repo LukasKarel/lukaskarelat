@@ -26,9 +26,6 @@
       <p class="py-6 font-bold">
         curious mind with a passion for open-source and learning
       </p>
-      <div class="flex justify-center gap-4">
-        <a href="/blog" class="btn btn-primary">Visit my Blog</a>
-      </div>
     </div>
   </div>
   <div class="grow mx-4 mt-4">
