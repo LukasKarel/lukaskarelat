@@ -1,0 +1,193 @@
+---
+title: First Setup of my Website 
+description: My initial website was developed using sveltekit and daisyui. I hosted it using caddy for easier maintainability and AUTOMATIC security.
+createdAt: 2025-11-15
+tools:
+- caddy 
+- sveltekit
+tags:
+- TECH
+project: lukaskarelat
+---
+
+<script lang="tsx">
+
+import PostSignature from "$lib/components/blog/PostSignature.svelte"
+import Figure from "$lib/components/blog/Figure.svelte"
+</script>
+
+# {title}
+
+My first website had absolutely no features. It was just a landing page, with nav bar
+for my socials and form to register for my newsletter
+*(the newsletter got removed with the next release)*.
+There was no blog. There were not many requirements defined what framework to use
+to build my frontend. I just wanted to have **server-side rendering** and for the
+beginning I wanted to start with **static file hosting** because deployment
+is much easier.
+So I decided to build with ``sveltekit``.
+<Figure
+  src="/blog-static/first-setup-of-website/initial_look.png"
+  alt="The initial look of this website"
+  caption="This was the initial look of that website on my laptop" />
+
+I tried to at least build some responsiveness into the design. But I
+will soon realize that responsive design is much more pain.
+
+<Figure
+  src="/blog-static/first-setup-of-website/initial_look_mobile.jpg"
+  alt="The initial mobile look of this website"
+  caption="This was the initial mobile look of this website on my phone"
+  verticalView={true}
+/>
+
+## Sveltekit Frontend
+
+In the past I used ``react`` and ``nextjs`` for small projects. But I decided
+I would like to check out something new. My frontend skills are really
+limited. I can't tell you why I do not like ``react``. It's just
+a feeling that ``svelte`` feels better and fresher.
+
+I researched some component libraries because my ``css`` skills are really
+limited. I built one project with [flowbite](https://flowbite-svelte.com/)
+but I did not like themes. This is why I researched more and found
+[daisyUI](https://daisyui.com/). In the past I always used ``tailwind CSS``
+for styling, so I liked the integration of ``daisyUI`` into
+``tailwind``.
+
+## Hosting with Caddy
+
+I wanted to make sure that I'm able to host multiple websites on the same
+virtual machine. Another problem I needed to solve was hosting static files.
+An the most important one was **certificate management**. This is why
+[``caddy``](https://caddyserver.com/) came into play. I always hated ``nginx`` and ``apache``. The feeling
+wasn't good when I tried them out. But ``caddy`` changed everything.
+
+I'm not sure how I found out about caddy. But it was *love on first sight*.
+I loved the website, I loved the feature set, I loved the simple configuration.
+I was stunned, that I haven't heard about that software earlier. All problems I
+had with alternatives.
+
+I started with caddy with their ``docker-compose`` deployment. The initial setup
+was really easy. My first examples on my local machine used only http without
+any certificate.
+
+```hcl
+http://localhost:2020 {
+ respond "Hello from example" 200
+}
+```
+
+After this i switched configuring caddy on my virtual machine with public IP. Then
+I was able to setup https as easy as this:
+
+```hcl
+lukaskarel.at {
+ respond "Hello from Lukas" 200
+}
+```
+
+**THIS WAS ALL TO CONFIGURE A HTTPS ENDPOINT**. My DNS and virtual machine was
+configured using opentofu. Then just this 3 lines and ``caddy``
+automatically added a certificate using ``ACME``.
+I don't have to worry about outdated certificates anymore. It just works.
+
+Then I did some more testing with basic auth to secure some paths and binding URLs
+just on specific interfaces. I just tried some things because I was thinking about
+integrating a newsletter with ``listmonk``.
+
+## The Newsletter Integration
+
+I thought that I need some way to interact with my userbase. I can't explain
+today, why I thought: "I need a newsletter". I have completely forgotten about
+social media when planning this. I removed everything about this section
+in the next release. But I want to be fully transparent that I did some
+mistake and increased complexity without the need. **Just because I wanted
+to learn something new and build something more demanding than just
+a frontend with static files.** Not because there were any requirements
+on this. Just because my ego told me: **DO MORE.**
+
+Because it was removed with the next release I will talk
+about technical details. I just want to share my thinking process
+when setting everything up.
+
+### Listmonk
+
+I searched some time for a nice integration of a newsletter into my website.
+I also did some research with LLMs. I did not want to pay for that service.
+Because I want to keep it as cheap at the beginning as possible for myself.
+This is when I found ``listmonk``.
+I then used again ``docker-compose`` to easily setup it up. I read about
+Data Privacy in the EU requires **double-opt-in**.
+But listmonk already supports this.
+So it can be easily integrated by connecting with SMTP with your mail provider.
+Then I created an account on my (not self-hosted)
+mail provider and realized there are constraints for maximum mails per day.
+This is when I realized there is more to do than just spinning up a listmonk instance.
+Of course I wasn't delusional and thought I will reach that 2000 mail per day limit.
+But it did not know this was something to think about.
+
+Then i found about mail bounces and understood why it is common to just
+subscribe to a mail provider. It is not that hard to set everything up
+but to maintain and prevent malicious or spam mails is important to me.
+
+This is why I did the sign up to newsletter myself with a python api.
+
+### Python API
+
+I read about prevention of bots and fake mails for newsletter forms.
+``listmonk`` hosts it own forms for users to sign up/edit/block newsletters.
+But I wanted to make sure that the sign up prevents bots from signing up.
+
+With some researched I created a form with a mail as required input and an ``honeypot``
+input. The honeypot is for indication if a form was auto filled by a bot. This value
+needs to stay empty otherwise the API wont accept the request.
+If a user registered a POST request ist sent to my API.
+But the request must also requires a token that is generated (current timestmap)
+and signed by my API. The frontend loads that token intially and performs refreshing
+automatically.
+
+Only if that token is not outdated, not too fresh (too prevent spam), the honeypot is empty
+and a valid email was submitted a new mail was created for listmonk. Then the user had to
+confirm the registration by clicking the link in the mail. Then the user was ready for
+receiving mails from me.
+
+```html
+<form
+    class="flex flex-col lg:flex-row gap-1 lg:gap-0"
+    onsubmit={handleSubmit}
+  >
+    <label class="input focus-within:outline-0">
+      <span class="label text-primary-content">Newsletter</span>
+      <input
+        type="email"
+        name="email"
+        placeholder="Enter email"
+        bind:value={mail}
+        autocomplete="email"
+        id="email"
+      />
+    </label>
+    <input
+      type="text"
+      class="hidden"
+      name="name"
+      bind:value={address}
+    />
+    <button
+      class="btn btn-secondary uppercase"
+      disabled={!emailSchema.safeParse(mail).success ||
+        subscribe_triggered}>Subscribe</button
+    >
+</form>
+```
+
+### Caddy Adaptions
+
+### Postgres Hosting
+
+### Postgres Backups
+
+## Deployment with Github Actions
+
+<PostSignature />

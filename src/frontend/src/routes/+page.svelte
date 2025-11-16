@@ -12,7 +12,7 @@
   title={DefaultWebSite.name}
   description="Personal website of Lukas Karel. A place to learn, build and grow together."
   pathname=""
-  imagePath={"austin-chan-sign-unsplash.jpg"}
+  imagePath={""}
 />
 
 <WebSiteSchema data={DefaultWebSite} />
