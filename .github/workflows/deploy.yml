@@ -86,7 +86,7 @@ jobs:
           tar -xvf /tmp/lukaskarelat/archive.tar.gz -C /tmp/lukaskarelat/ext
 
           rsync --delete -r /tmp/lukaskarelat/ext/site/ /srv/sites/lukaskarelat
-          cp /tmp/lukaskarelat/ext/caddy /srv/stacks/proxy/caddy-cfg/lukaskarelat.caddy
+          cp /tmp/lukaskarelat/ext/caddy /srv/caddycfg/lukaskarelat.caddy
 
           # required -lc that login is triggered and reload function should be loaded then
           bash -lc "reload_proxy_config"
