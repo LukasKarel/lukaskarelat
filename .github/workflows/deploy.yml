@@ -53,6 +53,7 @@ jobs:
 
     - name: Create tar archive
       run: |
+          mkdir -p dist/tar
           cp -r deploy/lukaskarelat dist/tar/site
           cp src/backend/caddy/lukaskarelat.caddy dist/tar/caddy
 
