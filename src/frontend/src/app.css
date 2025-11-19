@@ -1,6 +1,52 @@
 @import 'tailwindcss';
+
+@plugin "@tailwindcss/typography";
+
 @plugin "daisyui" {
   themes: business --default;
 }
 
-@import '@fontsource-variable/arimo/wght.css'
+@import '@fontsource-variable/arimo/wght.css';
+
+@import 'prismjs/themes/prism-tomorrow.css';
+
+.grid-auto-size {
+  grid-template-columns: repeat(auto-fill, 320px);
+  justify-content: center;
+}
+
+.prose {
+  :is(h1, h2, h3, h4, h5, h6) {
+
+    /* create offset if scrolling to heading by id that sticky navbar on top does not cover */
+    scroll-margin-top: 100px;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6) a {
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .anchor-icon {
+    display: inline-block;
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-left: 0.5em;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6):hover a .anchor-icon {
+    opacity: 0.5;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6) a .anchor-icon:hover {
+    opacity: 1;
+  }
+  
+  :where(code):not(pre > code) {
+    background-color: rgba(0,0,0,0);
+    border: none;
+  }
+}
+

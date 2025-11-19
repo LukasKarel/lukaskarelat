@@ -1,8 +1,4 @@
-<svg
-  viewBox="0 0 512 512"
-  class="w-full h-full"
-  xmlns="http://www.w3.org/2000/svg"
->
+<svg viewBox="0 0 512 512" class="" xmlns="http://www.w3.org/2000/svg">
   <g>
     <title>Logo of LK</title>
     <g transform="rotate(-180 263.561 251.908)" stroke="null" id="svg_10">
