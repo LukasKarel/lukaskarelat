@@ -15,7 +15,13 @@
 
   let { title, description, pathname, imagePath }: Props = $props();
 
-  const canonicalURL = new URL(pathname, PUBLIC_HOST).toString();
+  // we need to end with / because of trailing slash for better routing
+  // with static files
+  if (!pathname.endsWith("/")) {
+    pathname += "/";
+  }
+
+  let canonicalURL = new URL(pathname, PUBLIC_HOST).toString();
   // const imageURL = imagePath && new URL(imagePath, PUBLIC_HOST).toString();
 </script>
 

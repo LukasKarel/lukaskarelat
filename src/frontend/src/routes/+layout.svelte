@@ -36,7 +36,7 @@
       </div>
       <div class="flex-none block">
         <ul class="menu menu-horizontal font-bold">
-          <li><a href="/blog">BLOG</a></li>
+          <li><a href="/blog/">BLOG</a></li>
           <li class="sm:hidden">
             <details>
               <summary>SOCIALS</summary>

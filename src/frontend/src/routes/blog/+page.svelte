@@ -16,7 +16,7 @@
 <MinimumHead
   title="All Posts - Lukas Karel"
   description="An overview over all posts I wrote"
-  pathname="/blog"
+  pathname="/blog/"
   imagePath={undefined}
 />
 
