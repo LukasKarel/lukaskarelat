@@ -19,4 +19,27 @@
 		rewrite @notFound /404.html
 		file_server
 	}
+
+	# Disable caching for all ssr routes
+	@html file {
+			try_files {path}/index.html
+	}
+	header @html {
+		Cache-Control "no-cache, no-store, must-revalidate"
+		Pragma "no-cache"
+		Expires "0"
+	}
+
+	# sveltekit creates __data.json files for data returned by
+	# +page.server.ts or +page.ts
+	# disable caching for all data.json files
+	@datajson {
+		path_regexp data ^/(.*\/)?__data\.json$
+	}
+	header @datajson {
+			Cache-Control "no-cache, no-store, must-revalidate"
+			Pragma "no-cache"
+			Expires "0"
+		}
+	}
 }
