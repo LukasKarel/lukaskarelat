@@ -101,7 +101,7 @@ async function getPostsMetadata() {
       if (result.success) {
         return {
           ...result.data,
-          route: `/blog/${result.data.id}`
+          route: `/blog/${result.data.id}/`
         }
       }
       throw Error(`Invalid data stored for blog post ${id}`)

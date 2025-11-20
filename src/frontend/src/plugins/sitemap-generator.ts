@@ -44,9 +44,9 @@ async function mapBlogPosts(site: SitemapData[]): Promise<SitemapData[]> {
   })
 }
 
-function mapRootSite(site: SitemapData[]): SitemapData[] {
+function mapRootSite(site: SitemapData[], root: string): SitemapData[] {
   return site.map(data => {
-    if (data.loc.endsWith('/')) {
+    if (data.loc === root) {
       return {
         ...data,
         priority: 1.0,
@@ -115,7 +115,7 @@ async function generateSitemap(config: ResolvedConfig, userOptions: ResolvedUser
 
 
   sitemapData = await mapBlogPosts(sitemapData);
-  sitemapData = mapRootSite(sitemapData);
+  sitemapData = mapRootSite(sitemapData, `${config.env.VITE_PUBLIC_HOST}/`);
   writeSitemapFile(userOptions, sitemapData)
   writeRobots(config, userOptions)
 }

@@ -1,0 +1,237 @@
+---
+title: Using SvelteKit and mdsvex to start Blogging
+description: My self built blogging framework using sveltekit and mdsvex for simplified writing blog posts with markdown.
+createdAt: 2025-11-21
+tools:
+- sveltekit
+- mdsvex
+tags:
+- TECH
+project: lukaskarelat
+---
+
+<script lang="tsx">
+
+import PostSignature from "$lib/components/blog/PostSignature.svelte"
+import Figure from "$lib/components/blog/Figure.svelte"
+</script>
+
+# {title}
+
+Finally I finished building the environment I wanted to start blogging.
+The library I found was [mdsvex](https://mdsvex.pngwn.io/). ``mdsvex``
+lets you allow to write markdown with integrated svelte components.
+I really loved that idea. So i tried to find some examples and I found
+the blog of [Bahaa Zidan](https://gebna.gg/blog/blog-from-scratch-using-sveltekit).
+He explained how he moved from ``astro`` to ``sveltekit`` for his blog.
+However he doesn't use ``mdsvex``. He built his own tools using [unified](https://unifiedjs.com/),
+[remark](https://github.com/remarkjs/remark) and [rehype](https://github.com/rehypejs/rehype).
+
+I decided that I wanted to use ``mdsvex`` and use some ideas I saw at
+Bahaa's blog for routing. I also liked his sitemap generation.
+I based mine on his ideas but fine tuned it to my preferences.
+
+## Clean Up of the Architecture
+
+As already mentioned in the last blog post, I did some architectural clean up.
+I removed the newsletter and docker from my project. The architecture got
+completetly out of hand. Everything got much easier with just static files
+and one caddy systemd instance as http server.
+
+My ansible file for setting up my virtual machine got simplified. Other problems
+occured but still much easier to handle in the future.
+
+<Figure
+  src="/blog-static/using-sveltekit-with-mdsvex-to-blog/simplified-architecture.svg"
+  alt="An architectural description of the website required software"
+  caption="The simplified infrastructure to run my website" />
+
+## Using mdsvex to generate Pages
+
+``mdsvex`` is used to generate svelte components using markdown. So I can create large
+components writing simple markdown files containing the content of my blog.
+But one problem remains: How to host one ``*.mdx`` file with one route?
+
+I decided to use [Bahaa's](https://gebna.gg) approach of extracting frontmatter
+of the files using ``gray-matter`` but don't load the full file content
+as to generate a html string to use with
+svelte ``{@html ...}`` rendering. I guessed Bahaa removed in his approach
+the possibility to use svelte components in his blog files.
+And I kinda liked the idea to use my components in my blog posts.
+
+So I created a server side function that generates metadata based
+on the frontmatter & filename. So I created a template with the
+minimum required frontmatter properties. At the moment
+tools, tags and project are not really required, but I want to
+use them in the future for sorting and filtering.
+
+```markdown
+---
+title: Title
+description: Description 
+createdAt: 2025-11-05
+tools:
+- tool1
+- tool2
+tags:
+- TECH
+project: lukaskarelat
+---
+```
+
+*The implementation of the metadata extraction is too long for this post
+in my opinion. But feel free to look at it in my [public github mirror](https://github.com/LukasKarel/lukaskarelat/blob/30471522cb00efc7d08d5b65dc21d7de847733ad/src/frontend/src/lib/server/posts.ts)
+of my websites source code.*
+
+I decided I wanted to host my blog posts with the route ``/blog/[slug]``.
+So I needed some form of slug. I used the filename as slug identifier.
+This prevents the multiple usage of the same slug. Now I had to connect
+the ``mdsvex`` component to a route using [dynamic component loading](https://github.com/khromov/sveltekit-dynamic-component-load-demo/tree/master).
+*GOD BLESS OPENSOURCE!*
+
+In my ``+page.server.ts`` I load the metadata of only the requested blog
+and send it to the ``+page.ts`` on client side. If the user
+requests a post that is not available I will respond with 404.
+In the ``+page.server.ts`` file is also an ``EntryGenerator`` for
+static file generation to detect all available routes.
+
+```typescript
+// +page.server.ts
+import { error } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+import type { EntryGenerator } from './$types';
+import { getPostsMetadata } from '$lib/server/posts';
+
+export const entries: EntryGenerator = async () => {
+  const posts = await getPostsMetadata();
+  return posts.map(p => ({
+    slug: p.id
+  }));
+};
+
+export const load: PageServerLoad = async ({ params }) => {
+  const posts = await getPostsMetadata();
+  const post = posts.find(data => data.id === params.slug)
+
+  if (!post) {
+    return error(404);
+  }
+
+  return {
+    post,
+  }
+
+};
+```
+
+In the ``+page.ts`` file I created the component with dynamic component loading.
+So I import the ``*.mdx`` file and forward that component to the
+loaded page.
+
+```typescript
+// +page.ts
+export async function load({ data }) {
+  const component = (await import(`$lib/blog/posts/${data.post.id}.mdx`)).default;
+
+  return {
+    post: data.post,
+    component,
+  };
+}
+```
+
+The rendering of the page in ``+page.svelte`` is than straight forward after
+I found out how to use snippets.
+
+```svelte
+<script lang="ts">
+  import MinimumHead from "$lib/components/head/MinimumHead.svelte";
+
+  const { data } = $props();
+</script>
+
+{#snippet post()}
+  {@const SvelteComponent = data.component}
+  <SvelteComponent />
+{/snippet}
+
+<MinimumHead
+  title={`${data.post.title} - Lukas Karel`}
+  description={data.post.description}
+  pathname={data.post.route}
+/>
+
+<article
+  class="prose mx-auto mb-16 min-w-[90%] max-w-[95%] sm:min-w-[80%] sm:max-w-[90%] md:min-w-[60%] md:max-w-[80%] lg:min-w-[50%] lg:max-w-[55%] mt-2"
+>
+  {@render post()}
+</article>
+
+```
+
+## Extensions with remark-rehype
+
+``mdsvex`` uses ``unified`` with ``remark`` and ``rehype``. It also allows
+to add extensions into the pipeline when configuring it in
+``svelte.config.js``. At the moment I added two extensions
+
+- [``rehype-slug``](https://github.com/rehypejs/rehype-slug)
+- [``rehype-autolink-headings``](https://github.com/rehypejs/rehype-autolink-headings)
+
+``rehype-slug`` autogenerates an id attribute for each headings.
+``rehype-autlink-headings`` adds automatic links to each heading.
+So I was able to add the hover effect on headings with the link svg.
+I used a svg from [freesvgicons.com](https://freesvgicons.com/).
+
+## Styling
+
+The styling for my blog pages has two main features. The default styling
+of all html tags generated with ``mdsvex`` and secondly the syntax highlighting
+in code blocks.
+
+### Basic HTML with tailwindcss
+
+For faster go-live I decided to use the same approach as [Bahaa](https://gebna.gg).
+I used the [tailwindcss-typography](https://github.com/tailwindlabs/tailwindcss-typography) plugin.
+This plugin defines some good looking defaults for
+HTML texts and is easily integrated.
+
+I'm just starting at understanding CSS. In the future I want to remove
+tailwindcss from my projects. I don't like
+the code bloating of tailwindcss classes in components.
+I'm thinking of switching to component specific styiling from svelte.
+But my frontend (and design) journey just started.
+
+### Syntax Highlighting with Prism
+
+``mdsvex`` allows to use ``prism`` without further configuration or usage
+of ``shiki`` as custom code highlighter. I decided to stay with
+``prism``. So I just needed to add a theme from ``prism`` into my css file.
+
+```css
+@import 'prismjs/themes/prism-tomorrow.css';
+```
+
+Most file formats (or programming languages) are automatically highlighted.
+
+## Future Improvements
+
+I also added some SEO optimization already in the first version but I will
+write about it in the next post. It will handle ``sitemap`` and ``jsonld`` for structured data.
+
+Another feature I was thinking about is also kinda SEO optimization but
+more important for social media. ``OpenGraph`` meta tags. I did the basic
+stuff but I'm missing an image for display when my blog post is shared somewhere.
+I do not want to use completetly unrelated images to my blog posts. Therefore
+I want to integrate ``Image Generation`` into the build process. But more about
+that in the future when I implement that.
+
+I also miss a **Copy Code** button in code snippets. [Bahaa](https://gebna.gg)
+integrated that button, but I wasn't able to achieve this at the moment.
+I did not want to invest much more time. So I postponed this feature.
+
+Another problem was that syntax highlighting with a ``caddyfile``
+for ``caddy`` is not available. I am thinking about implementing
+this in the future as well. I would love seeing this.
+
+<PostSignature />
