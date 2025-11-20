@@ -71,7 +71,7 @@ ${urls
       .join("\n")}
 </urlset>`;
 
-  fs.writeFileSync(path.join(userOptions.output, "sitemap.yml"), xml)
+  fs.writeFileSync(path.join(userOptions.output, "sitemap.xml"), xml)
 }
 
 function writeRobots(config: ResolvedConfig, userOptions: ResolvedUserOptions) {
