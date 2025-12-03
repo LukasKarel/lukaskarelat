@@ -1,0 +1,183 @@
+---
+title: Optimizing SEO with structured data and sitemap.xml
+description: I did some initial research about SEO and this is how I came across structured data. I added ld+json data to my posts for better performance.
+createdAt: 2025-12-03
+tools:
+- jsonld
+- svelte
+tags:
+- TECH
+project: lukaskarelat
+---
+
+<script lang="tsx">
+
+import PostSignature from "$lib/components/blog/PostSignature.svelte"
+</script>
+
+# {title}
+
+Most people know about [OpenGraph](https://ogp.me/) to control the visualization
+of the links to their sites on social media.
+With some specific ``<meta>`` tags in the ``<head>`` section
+we can control how a link to our website is displayed on
+twitter, facebook and linkedin.
+
+But only some people go the extra mile and add [structured data](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data)
+to their ``<head>`` section. One example I found was from [joshfinnie](https://www.joshfinnie.com/blog/adding-json-ld-to-my-blog/).
+
+## Visibility on Google
+
+Google needs some easily parsable data to understand the content of your site.
+What is it about?
+
+- blog post
+- product site
+- product review
+- job posting
+- recipe
+- image
+
+Google don't uses AI to extract that information. Its requires the website to tell it
+about the content of the site.
+Based on the provided information google can extract that information and add your site
+to their frontend.
+
+For example: If you search for a product or a recipe, google adds some meta information
+into the search result. Like the rating, the cost, the cooking duration or the rating of your users.
+
+Google extracts data from your website and uses it to display it directly to the user in a special view.
+The user can then decide more easily when searching for information whether your site is
+worthy to visit. In my opinion the benefit is extreme. And the implementation is easy.
+
+*It is not really useful for blog posts as their is no special view on google for that.
+I still decided to add it, just to learn about it.*
+
+## Examples and Validation
+
+First of all we have to research what types are available to use. I used [schema.org](https://schema.org/docs/schemas.html)
+to check potential schemas I can use to add to my website.
+*Not all are supported by google or other search machines.
+But these are the ones defined and maybe used by any other tool.*
+Structured data is not only used by search engines but it was my motivation to
+understand it.
+
+Other examples can be found at [jsonld.com](https://jsonld.com/). Their you
+can only find structured data in the jsonld format.
+
+Validation of your websites data can be done with [google](https://search.google.com/test/rich-results)
+or [schema.org](https://validator.schema.org/).
+
+## Adding structured data to svelte
+
+All ``jsonld`` structured data should be added to the ``<head>`` section of a webpage.
+The json payload should be insane a ``<script type="application/ld+json">`` tag.
+
+As an example I created a type for the BlogPosting schema like:
+
+``` typescript
+type BlogPosting = {
+  "@type": "BlogPosting",
+  headline: string;
+  description?: string;
+  keywords?: string[];
+  image?: string;
+  datePublished: Date;
+  dateModified: Date;
+  author?: Author | Author[]
+}
+```
+
+I then created a svelte component ``JsonLDSchema.svelte`` as base for all
+schemas I want to use:
+
+```svelte
+<script lang="ts">
+  const { data }: { data: any } = $props();
+
+  const insert = $derived({
+    "@context": "http://schema.org",
+    ...data,
+  });
+
+  const jsonld = $derived(JSON.stringify(insert));
+</script>
+
+<svelte:head>
+  {@html `<script type="application/ld+json">${jsonld}</script>`}
+</svelte:head>
+```
+
+My ``BlogPostingSchema.svelte`` based on ``JsonLDSchema.svelte`` looks like this
+
+```svelte
+<script lang="ts">
+  import type { BlogPosting } from "$lib/head/schemas/BlogPosting";
+  import JsonLdSchema from "./JsonLDSchema.svelte";
+  const { data }: { data: BlogPosting } = $props();
+</script>
+
+<JsonLdSchema {data} />
+```
+
+Then I just needed to extend the functionality that loads all information of my
+written posts and forward that information into the ``BlogPostingSchema`` component.
+At the moment my ``+page.svelte`` for ``/blog/[slug]`` paths is:
+
+```svelte
+<script lang="ts">
+  import BlogPostingSchema from "$lib/components/head/BlogPostingSchema.svelte";
+  import MinimumHead from "$lib/components/head/MinimumHead.svelte";
+  import { DefaultAuthor } from "$lib/head/schemas/Author.js";
+  import type { BlogPosting } from "$lib/head/schemas/BlogPosting";
+
+  const { data } = $props();
+
+  const blogPostingSchema: BlogPosting = $derived({
+    "@type": "BlogPosting",
+    author: DefaultAuthor,
+    dateModified: data.post.lastEditTime,
+    datePublished: data.post.publicationDate,
+    headline: data.post.title,
+    description: data.post.description,
+  });
+</script>
+
+{#snippet post()}
+  {@const SvelteComponent = data.component}
+  <SvelteComponent />
+{/snippet}
+
+<MinimumHead
+  title={`${data.post.title} - Lukas Karel`}
+  description={data.post.description}
+  pathname={data.post.route}
+/>
+<BlogPostingSchema data={blogPostingSchema} />
+
+<article
+  class="prose mx-auto mb-16 min-w-[90%] max-w-[95%] sm:min-w-[80%] sm:max-w-[90%] md:min-w-[60%] md:max-w-[80%] lg:min-w-[50%] lg:max-w-[55%] mt-2"
+>
+  {@render post()}
+</article>
+```
+
+And this is all it took to add some structured data to my blog posts. I also added the ``WebSite`` schema
+to my site. But you can check out the sites source code if you want to see more about it. I can easily add
+more structured data if I extend my website with new content types.
+
+## Generating sitemap.xml with my own vite plugin
+
+As already mentioned in the last post my website was inspired much of [gebna.gg](https://gebna.gg/blog/blog-from-scratch-using-sveltekit).
+He added some kind of sitemap.xml generation. But I did not like his approach.
+This is why I built my own generator based on a vite plugin.
+
+My plugin runs after all sites are already generated. I then search in the
+outputfolder for all ``*.html`` files using [fastglob](https://github.com/mrmlnc/fast-glob).
+Based on that relative paths I create the absolute urls I want to add to the xml.
+With some string concatenation I'm able to build my own sitemap and write it into the
+output folder.
+
+The complete sitemap generator plugin can be found in [my repo](https://github.com/LukasKarel/lukaskarelat/blob/466ad35f1631e23c2dfcbac8e1202c340e644a74/src/frontend/src/plugins/sitemap-generator.ts).
+
+<PostSignature />

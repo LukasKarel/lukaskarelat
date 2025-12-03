@@ -55,8 +55,8 @@ But one problem remains: How to host one ``*.mdx`` file with one route?
 I decided to use [Bahaa's](https://gebna.gg) approach of extracting frontmatter
 of the files using ``gray-matter`` but don't load the full file content
 as to generate a html string to use with
-svelte ``{@html ...}`` rendering. I guessed Bahaa removed in his approach
-the possibility to use svelte components in his blog files.
+svelte ``{@html ...}`` rendering. I guessed Bahaa removed
+the possibility to use svelte components in his blog files with his approach.
 And I kinda liked the idea to use my components in my blog posts.
 
 So I created a server side function that generates metadata based

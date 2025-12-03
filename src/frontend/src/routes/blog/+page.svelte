@@ -6,11 +6,11 @@
   const { data } = $props();
 
   const posts = $derived(
-    data.posts.sort(
-      (p1, p2) =>
-        p2.publicationDate.getUTCDate() - p1.publicationDate.getUTCDate(),
-    ),
+    data.posts.sort((p1, p2) => {
+      return p2.publicationDate.getTime() - p1.publicationDate.getTime();
+    }),
   );
+  $inspect(posts);
 </script>
 
 <MinimumHead
