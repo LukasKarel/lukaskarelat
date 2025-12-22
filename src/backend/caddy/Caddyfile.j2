@@ -36,9 +36,18 @@
 	@datajson {
 		path_regexp data ^/(.*\/)?__data\.json$
 	}
+	
 	header @datajson {
 			Cache-Control "no-cache, no-store, must-revalidate"
 			Pragma "no-cache"
 			Expires "0"
+	}
+
+	@pngfile {
+		path_regexp data ^/(.*\/)?.*\.png$
+	}
+	header @pngfile {
+		Cache-Control "public, max-age=86400"
+		Expires "86400"
 	}
 }
