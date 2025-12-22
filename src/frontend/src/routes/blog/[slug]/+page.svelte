@@ -25,6 +25,7 @@
   title={`${data.post.title} - Lukas Karel`}
   description={data.post.description}
   pathname={data.post.route}
+  imagePath={`/api/og/image/blog/${data.post.id}.png`}
 />
 <BlogPostingSchema data={blogPostingSchema} />
 

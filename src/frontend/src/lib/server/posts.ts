@@ -44,7 +44,10 @@ const entryMetadataSchema = z.object({
   lastEditTime: dateSchema,
   tags: z.array(z.string()).optional(),
   tools: z.array(z.string()).optional(),
-  project: z.string().optional()
+  project: z.string().optional(),
+  ogImageTitle: z.string().optional(),
+  ogImageSubtitle: z.string().optional(),
+  ogImageTags: z.array(z.string()).max(3).optional()
 })
 
 const lastEditTime = async (filePath: string) => {
@@ -79,6 +82,9 @@ async function getPostsMetadata() {
         tags?: string[],
         tools?: string[],
         project?: string
+        ogImageTitle?: string;
+        ogImageSubtitle?: string;
+        ogImageTags?: string[],
       };
 
       const id = filePath
@@ -95,7 +101,10 @@ async function getPostsMetadata() {
         lastEditTime: editTime,
         tags: typedData.tags?.map(t => t.toLowerCase()),
         tools: typedData.tools?.map(t => t.toLowerCase()),
-        project: typedData.project?.toLowerCase()
+        project: typedData.project?.toLowerCase(),
+        ogImageTitle: typedData.ogImageTitle,
+        ogImageSubtitle: typedData.ogImageSubtitle,
+        ogImageTags: typedData.ogImageTags,
       });
 
       if (result.success) {

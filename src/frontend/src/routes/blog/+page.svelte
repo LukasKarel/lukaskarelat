@@ -10,14 +10,12 @@
       return p2.publicationDate.getTime() - p1.publicationDate.getTime();
     }),
   );
-  $inspect(posts);
 </script>
 
 <MinimumHead
   title="All Posts - Lukas Karel"
   description="An overview over all posts I wrote"
   pathname="/blog/"
-  imagePath={undefined}
 />
 
 <main class="my-8 mx-4 sm:mx-auto sm:min-w-[95%] lg:min-w-[75%]">

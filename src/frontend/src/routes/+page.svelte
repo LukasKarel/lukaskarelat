@@ -12,7 +12,6 @@
   title={DefaultWebSite.name}
   description="Personal website of Lukas Karel. A place to learn, build and grow together."
   pathname=""
-  imagePath={""}
 />
 
 <WebSiteSchema data={DefaultWebSite} />

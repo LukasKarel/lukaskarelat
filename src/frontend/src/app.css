@@ -7,6 +7,8 @@
 }
 
 @import '@fontsource-variable/arimo/wght.css';
+@import '@fontsource-variable/inter';
+@import '@fontsource/bbh-sans-bogle';
 
 @import 'prismjs/themes/prism-tomorrow.css';
 
@@ -50,3 +52,7 @@
   }
 }
 
+@theme {
+  --font-inter: "Inter Variable", "sans";
+  --font-bbh: 'BBH Sans Bogle', "sans-serif";
+}

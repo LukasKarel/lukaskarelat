@@ -3,6 +3,7 @@
   import z from "zod";
   import WebPageSchema from "./WebPageSchema.svelte";
   import { DefaultAuthor } from "$lib/head/schemas/Author";
+  import { DefaultOGImagePath } from "$lib/og";
 
   const propertyValidation = z.object({
     title: z.string().max(70),
@@ -22,7 +23,9 @@
   }
 
   let canonicalURL = new URL(pathname, PUBLIC_HOST).toString();
-  // const imageURL = imagePath && new URL(imagePath, PUBLIC_HOST).toString();
+  const imageURL = imagePath
+    ? new URL(imagePath, PUBLIC_HOST).toString()
+    : new URL(DefaultOGImagePath, PUBLIC_HOST).toString();
 </script>
 
 <WebPageSchema
@@ -45,7 +48,7 @@
   <meta property="og:url" content={canonicalURL} />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
-  <!-- <meta property="og:image" content={imageURL} /> -->
+  <meta property="og:image" content={imageURL} />
   <meta property="og:site_name" content="LukasKarelAT" />
 
   <meta property="twitter:card" content="summary_large_image" />
