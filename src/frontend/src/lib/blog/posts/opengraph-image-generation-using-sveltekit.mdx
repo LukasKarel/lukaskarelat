@@ -1,0 +1,313 @@
+---
+title: OpenGraph Image Generation using Svelte with Satori 
+description: Social media banners are extremely important. User decide within milliseconds whether the link is worthy of their time.
+createdAt: 2025-12-23
+tools:
+- svelte
+- opengraph
+tags:
+- TECH
+project: lukaskarelat
+ogImageTitle: "OpenGraph Image Generation with Svelte and Satori"
+ogImageSubtitle: "Social Media Banner Generation with Svelte Components"
+ogImageTags:
+- svelte
+- OpenGraph
+---
+
+<script lang="tsx">
+
+import PostSignature from "$lib/components/blog/PostSignature.svelte"
+import Figure from "$lib/components/blog/Figure.svelte"
+</script>
+
+# {title}
+
+If your website is shared on social media like Facebook, Twitter, LinkedIn or Discord
+the platform renders a card as link. This is the first impression of your website.
+It is extremely important. But how can we as WebDeveloper decide how this card
+should look like?
+
+This is when ``OpenGraph`` comes into play. OpenGraph defines some metadata that social
+media platforms extract to render the link. Usually an image, a title and a description
+will be extracted. The next image shows you examples of social media links of my
+website after my first implementation. These examples were generated using [OrcaScan](https://orcascan.com/).
+
+<Figure
+  src="/blog-static/opengraph-image-generation-using-sveltekit/OpenGraphPreview.png"
+  alt="An overview of some social media links when sharing my website"
+  caption="Social media links of my website (generated using orcascan.com)" />
+
+## Adding OpenGraph Metadata to a Website
+
+Adding the required information for social media sites is actually really easy.
+We just need to add some ``<meta>`` tags into our ``<head>`` section of our
+website. As an example look at the next code snippet. This is extracted from
+my website.
+You will see that twitter has defined its own meta tags. I just use
+my default OpenGraph tags. I really don't care much about twitter, tbh.
+
+```html
+<head>
+  <meta property="og:url" content="https://lukaskarel.at/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Learning, Building & Growth - Lukas Karel" />
+  <meta property="og:description" content="Personal website of Lukas Karel. A place to learn, build and grow together." />
+  <meta property="og:image" content="https://lukaskarel.at/api/og/image/og.png" />
+
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://lukaskarel.at/" />
+  <meta property="twitter:title" content="Learning, Building & Growth - Lukas Karel" />
+  <meta property="twitter:description" content="Personal website of Lukas Karel. A place to learn, build and grow together." />
+</head>
+```
+
+The most important part is the image in my opinion. It gets the largest part
+of the screen area. And as we all know: A picture is worth a thousand words.
+Therefore it is important to make sure that the link to the image works publicly.
+I would not recommend to use a link that you cant control. You cant be sure
+that I will be available forever. This is why I host these images with my website
+as static content.
+
+My default OpenGraph image is hosted at ``https://lukaskarel.at/api/og/image/og.png``.
+This is a bit weird because it is part of an API? This is only weird until you know
+that we could use different tags for each site of our website.
+Therefore we are able to change the image based on the content of the shared resource.
+Each blog post of my website has its unique image, title and description.
+The next code section shows the meta tags of this post you currently looking at.
+
+```html
+<head>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://lukaskarel.at/blog/opengraph-image-generation-using-sveltekit/"/>
+  <meta property="og:title" content="OpenGraph Image Generation using Svelte with Satori - Lukas Karel"/>
+  <meta property="og:description" content="Social media banners are extremely important. User decide within milliseconds whether the link is worthy of their time."/>
+  <meta property="og:image" content="https://lukaskarel.at/api/og/image/blog/opengraph-image-generation-using-sveltekit.png"/>
+  <meta property="og:site_name" content="LukasKarelAT"/>
+  <meta property="twitter:card" content="summary_large_image"/>
+  <meta property="twitter:url" content="https://lukaskarel.at/blog/opengraph-image-generation-using-sveltekit/"/>
+  <meta property="twitter:title" content="OpenGraph Image Generation using Svelte with Satori - Lukas Karel"/>
+  <meta property="twitter:description" content="Social media banners are extremely important. User decide within milliseconds whether the link is worthy of their time."/>
+</head>
+```
+
+Of course it would be possible to create each image own my own with
+photoshop or any other image editing program. But we are developer.
+We like automation. This is why I decided I want to create ONE
+template for all blog posts and automatically generate a new
+image for opengraph usage automatically as part of the build process
+of my website.
+
+This is why ``https://lukaskarel.at/api/og/image/blog/opengraph-image-generation-using-sveltekit.png``
+uses the same api `/api/og/image` but with a different resource.
+Based on the requested resource I can decide how to generate
+an image.
+
+## Create dynamic Images from Svelte Components with Satori
+
+[Satori](https://github.com/vercel/satori) is an Open Source Library by Vercel
+to generate images from HTML code. I used [svelte-og](https://github.com/etherCorps/sveltekit-og)
+which allows to write svelte components to generate
+images. ``svelte-og`` uses satori to generate the images.
+
+The quick start guide of ``svelte-og`` is really straight forward
+and it was really easy to integrate it. We just need an own route
+with svelte which returns our images. My file is placed at
+``/api/og/image/[...slug].png/+server.ts``. So all my opengraph images
+must be requested with an GET request to this path. Here is the implementation
+on server side of the request handler.
+
+```typescript
+import { ImageResponse } from '@ethercorps/sveltekit-og';
+import type { EntryGenerator, RequestHandler } from './$types';
+import Card from '$lib/components/og/Card.svelte';
+import { loadProps } from '$lib/server/og';
+import { GoogleFont, resolveFonts } from '@ethercorps/sveltekit-og/fonts';
+
+// Define required fonts
+const interRegular = new GoogleFont('Inter', {
+  weight: 400,
+  name: 'Inter'
+});
+
+const interBold = new GoogleFont('Inter', {
+  weight: 700,
+  name: 'Inter'
+});
+
+const bbhBogleRegular = new GoogleFont('BBH Bogle', {
+  weight: 400,
+  name: 'BBH Sans Bogle',
+});
+
+export const GET: RequestHandler = async ({ params }) => {
+  // download all fonts
+  const resolvedFontOptions = await resolveFonts([interRegular, interBold, bbhBogleRegular]);
+  const slugs = params.slug.split('/');
+  // load properties for the requested image based on extracted slug
+  const props = await loadProps(slugs);
+
+  return new ImageResponse(
+    Card,
+    {
+      width: 1200,
+      height: 630,
+      debug: false,
+      // caching is not required at my website because i use caddyserver for webhosting
+      // and I have to configure caching there.
+      headers: {
+        'Cache-Control': 'public, max-age=86400'
+      },
+      fonts: resolvedFontOptions,
+    },
+    props,
+  );
+};
+```
+
+I add the ``Card`` component here as well as reference. You will notice
+I decided to have two variants of the rendered card. One for my
+blog and one for my other sites that don't support dynamic content
+at the moment.
+
+I designed the site with ``tailwindcss`` as it is supported but sometimes
+I was required to use ``style:`` tags on the HTML elements because
+it did not work with tailwind. It is a bit cumbersome at the first time
+to design the component. Because not all errors are printed on the
+console if satori is not able to render something. It will just
+return an empty response.
+
+I found out if you use static build of the website the error
+messages are much better. The next section will describe how
+I did this.
+But this made it even more complex to create. But still it worked.
+Always check with the satori documentation whether a CSS you want
+to use is implemented.
+And if something does not work with tailwind but satori mentiones
+as supported, try to set the style directly with the ``style:`` tag.
+I realized it works much better. Maybe because tailwind uses css
+variables quite often.
+
+```svelte
+<svelte:options css="injected" />
+
+<script lang="ts">
+  import type { CardProps } from "$lib/og";
+  const { title, subtitle, tags, variant }: CardProps = $props();
+
+  // If redesign think about changing the path with v2 (vX) to prevent that social media sites use cached versions
+</script>
+
+<div
+  class="w-full h-full bg-violet-700 text-white relative flex flex-col items-center font-inter"
+>
+  <div
+    style:font-family="BBH Sans Bogle"
+    style:text-shadow={"0px 1px 0px rgb(0 0 0), 0px 1px 1px rgb(0 0 0), 0px 2px 2px rgb(0 0 0)"}
+    class="absolute bottom-4 flex right-8 text-9xl font-normal tracking-wide"
+  >
+    LUKAS KAREL
+  </div>
+  {#if variant === "blog"}
+    <p
+      style:width="1000px"
+      style:text-shadow={"0px 1px 0px rgb(0 0 0), 0px 1px 1px rgb(0 0 0), 0px 2px 2px rgb(0 0 0)"}
+      class="text-7xl font-bold uppercase tracking-wide mb-0 mt-16"
+    >
+      {title}
+    </p>
+    {#if subtitle}
+      <p
+        style:width="1000px"
+        class="text-3xl font-bold uppercase tracking-wide mt-16"
+      >
+        {subtitle}
+      </p>
+    {/if}
+    {#if tags}
+      <div class="flex mt-auto mb-16 mr-auto ml-12">
+        {#each tags as tag}
+          <span
+            class="px-4 py-1 rounded-xl mx-2 text-2xl bg-teal-300 text-black font-bold tracking-wide lowercase"
+            ><p class="m-0">{tag}</p></span
+          >
+        {/each}
+      </div>
+    {/if}
+  {:else}
+    <div
+      style:width="700px"
+      style:text-shadow={"0px 1px 0px rgb(0 0 0), 0px 1px 1px rgb(0 0 0), 0px 2px 2px rgb(0 0 0)"}
+      class="flex text-7xl font-bold uppercase tracking-wide mb-0 mt-0 flex-col pt-16"
+    >
+      <span class="flex mb-8 items-center justify-between">
+        <p class="m-0 mb-0 inline-block">LEARN</p>
+        <p class="m-0 text-3xl ms-8 inline">Computer Science</p>
+      </span>
+
+      <span class="flex mb-8 items-center justify-between">
+        <p class="m-0 mb-0 inline-block">BUILD</p>
+        <p class="m-0 text-3xl ms-8 inline">PROTOTYPES</p>
+      </span>
+      <span class="flex mb-8 mt-0 items-center justify-between">
+        <p class="m-0 mb-0 inline-block">DEVELOP</p>
+        <p class="m-0 text-3xl ms-8 inline">SOLUTIONS</p>
+      </span>
+      <div class="flex mb-8 mt-8 items-center justify-center">
+        <p class="m-0 text-3xl text-center">in the Austrian Alps</p>
+      </div>
+    </div>
+  {/if}
+</div>
+```
+
+## Use SvelteKit SSR to create Images in Build Process
+
+The best part is that we are able to generate the images
+in our build process for static site hosting. I love it!
+We just need to add following lines into
+``/api/image/[...slug].png/+server.ts`` file.
+
+```typescript
+export const prerender = true;
+
+
+// The function that tells SvelteKit which URLs to pre-render
+export const entries: EntryGenerator = async () => {
+
+  const slugs = await loadAvailableSlugs();
+  return slugs.map(s => ({
+    slug: s
+  }))
+}
+```
+
+``loadAvailableSlugs()`` just returns all paths that an image should be
+generated as part of the build process. The more images should be
+created, the longer the build process will take. But for my simple site
+it is much simpler than host a SvelteKit application and implement caching
+to prevent CPU load.
+
+## Adapting Caddy to cache images
+
+I just added following section to my ``Caddyfile`` to add caching of png
+files on my website.
+
+```caddyfile
+ @pngfile {
+  path_regexp data ^/(.*\/)?.*\.png$
+ }
+ header @pngfile {
+  Cache-Control "public, max-age=86400"
+  Expires "86400"
+ }
+```
+
+This should add caching for all png files for one day. So if I change
+the design of my opengraph images, all people should get the new image
+at least one day later.
+And hopefully I will change the design some day in the future. At the moment
+they are not very good looking. But I wanted to test this without thinking
+to much about the design.
+
+<PostSignature />

@@ -13,7 +13,7 @@
   <div
     style:font-family="BBH Sans Bogle"
     style:text-shadow={"0px 1px 0px rgb(0 0 0), 0px 1px 1px rgb(0 0 0), 0px 2px 2px rgb(0 0 0)"}
-    class="absolute bottom-4 flex right-8 text-9xl font-normal"
+    class="absolute bottom-4 flex right-8 text-9xl font-normal tracking-wide"
   >
     LUKAS KAREL
   </div>
@@ -21,14 +21,14 @@
     <p
       style:width="1000px"
       style:text-shadow={"0px 1px 0px rgb(0 0 0), 0px 1px 1px rgb(0 0 0), 0px 2px 2px rgb(0 0 0)"}
-      class="text-7xl font-bold uppercase tracking-wider mb-0 mt-16"
+      class="text-7xl font-bold uppercase tracking-wide mb-0 mt-16"
     >
       {title}
     </p>
     {#if subtitle}
       <p
         style:width="1000px"
-        class="text-3xl font-bold uppercase tracking-wider mt-16"
+        class="text-3xl font-bold uppercase tracking-wide mt-16"
       >
         {subtitle}
       </p>
@@ -47,7 +47,7 @@
     <div
       style:width="700px"
       style:text-shadow={"0px 1px 0px rgb(0 0 0), 0px 1px 1px rgb(0 0 0), 0px 2px 2px rgb(0 0 0)"}
-      class="flex text-7xl font-bold uppercase tracking-wider mb-0 mt-0 flex-col pt-16"
+      class="flex text-7xl font-bold uppercase tracking-wide mb-0 mt-0 flex-col pt-16"
     >
       <span class="flex mb-8 items-center justify-between">
         <p class="m-0 mb-0 inline-block">LEARN</p>

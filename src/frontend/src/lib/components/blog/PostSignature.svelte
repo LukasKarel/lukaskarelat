@@ -2,8 +2,8 @@
 </script>
 
 <div>
-  Stay curious! <br />
-  ~ Lukas
+  From the Austrian Alps, <br />
+  Lukas
 </div>
 
 <style>
